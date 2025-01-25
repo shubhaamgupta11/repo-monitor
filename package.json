@@ -4,7 +4,8 @@
   "description": "A GitHub Action to monitor a repository for new issues and PRs and send notifications to different channels.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "prepare": "ncc build action/index.js -o dist --source-map --license licenses.txt"
   },
   "repository": {
     "type": "git",
