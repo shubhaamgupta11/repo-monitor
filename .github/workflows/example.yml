@@ -1,23 +1,27 @@
-name: Monitor GitHub Repo
+name: Test Action
 
 on:
   workflow_dispatch:
+
 jobs:
-  run-notifier:
+  test-action:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
-      - name: Run action
-        uses: ./ # path to your action
+          node-version: 18
+
+      - name: Test Local Action
+        uses: ./ # This points to the root of your action's repo
         with:
           task: "monitor-issues"
-          git_token: "${{ secrets.GITHUB_TOKEN }}"
-          notifier: "discord"  # or "slack"
-          fetch_data_interval: 24  # You can set this in hours
-          discord_webhook_url: "your_discord_webhook_url"
+          git_secret: ${{ secrets.GIT_SECRET }}
+          notifier: "discord"
+          fetch_data_interval: 24
+          discord_webhook_url: "https://discord.com/api/webhooks/1234567890/abc123"
           repo_owner: "facebook"
           repo_name: "react-native"
-
