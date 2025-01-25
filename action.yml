@@ -44,7 +44,7 @@ inputs:
 
 
 runs:
-  using: node18
+  using: node16
   main: action/index.js
 
 outputs:
