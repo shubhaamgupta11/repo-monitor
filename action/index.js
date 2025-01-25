@@ -6,8 +6,9 @@ const core = require("@actions/core");
 async function run() {
   try {
     const task = core.getInput("task");
-    const gitToken = core.getInput("git_token");
+    const gitToken = core.getInput("git_secret");
     const notifier = core.getInput("notifier"); // 'slack' or 'discord'
+    const alertTime = core.getInput("fetch_data_interval"); // in hours
 
     const owner = core.getInput("repo_owner");
     const repo = core.getInput("repo_name");
@@ -30,6 +31,7 @@ async function run() {
           notifier,
           slackConfig: { slackToken, slackChannel, slackIDType, slackID },
           discordConfig: { discordWebhookUrl },
+          alertTime,
         });
         break;
 
@@ -41,6 +43,7 @@ async function run() {
           notifier,
           slackConfig: { slackToken, slackChannel, slackIDType, slackID },
           discordConfig: { discordWebhookUrl },
+          alertTime,
         });
         break;
 

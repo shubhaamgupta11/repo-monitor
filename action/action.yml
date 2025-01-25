@@ -6,14 +6,11 @@ branding:
   color: blue
 
 inputs:
+  task:
+    description: Task to run (monitor-issues or monitor-prs).
+    required: true
   git_secret:
     description: GitHub token for authentication.
-    required: true
-  slack_bot_token:
-    description: Slack bot token to send notifications.
-    required: true
-  slack_channel:
-    description: The Slack channel to send notifications to.
     required: true
   repo_owner:
     description: Owner of the repository.
@@ -21,12 +18,30 @@ inputs:
   repo_name:
     description: Name of the repository.
     required: true
+  fetch_data_interval:
+    description: How far back to fetch data (e.g., 1 hour, 24 hours).
+    required: true
+  notifier:
+    description: Notification method (slack or discord).
+    required: true
+  # Slack-specific inputs
+  slack_bot_token:
+    description: Slack bot token to send notifications.
+    required: false
+  slack_channel:
+    description: The Slack channel to send notifications to.
+    required: false
   slack_id_type:
-    description: Type of Slack ID (user or channel).
-    required: true
+    description: Type of Slack ID (user or group).
+    required: false
   slack_id:
-    description: Slack ID of the recipient (user or channel).
-    required: true
+    description: Slack ID of the recipient (user or group).
+    required: false
+  # Discord-specific inputs
+  discord_webhook_url:
+    description: Discord webhook URL to send notifications.
+    required: false
+
 
 runs:
   using: node16

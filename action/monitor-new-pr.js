@@ -3,25 +3,25 @@ const sendSlackNotification = require("./integrations/slack");
 const sendDiscordNotification = require("./integrations/discord");
 
 /**
- * Fetch new pull requests created within the last `daysAgo` days.
+ * Fetch new pull requests created within the last `alertTime` days.
  *
  * @param {string} gitToken - GitHub API token for authentication.
  * @param {string} owner - Repository owner.
  * @param {string} repo - Repository name.
- * @param {number} daysAgo - Timeframe in days to fetch PRs created since then. Default: 1 day.
+ * @param {number} alertTime - Timeframe in days to fetch PRs created since then. Default: 1 day.
  * @returns {Promise<Array>} - List of new pull requests created within the specified timeframe.
  */
-const fetchNewPRs = async (gitToken, owner, repo, daysAgo = 1) => {
+const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/pulls`;
   const cutoffDate = new Date(
-    Date.now() - daysAgo * 24 * 60 * 60 * 1000
+    Date.now() - alertTime * 60 * 60 * 1000
   ).toISOString();
 
   let newPRs = [];
   let page = 1;
 
   console.log(
-    `Fetching new PRs created in the last ${daysAgo} days from ${apiUrl}`
+    `Fetching new PRs created in the last ${alertTime} days from ${apiUrl}`
   );
 
   try {
@@ -76,11 +76,11 @@ async function monitorPRs({
   notifier,
   slackConfig,
   discordConfig,
-  daysAgo = 1,
+  alertTime,
 }) {
   console.log("Starting PR monitor...");
 
-  const prs = await fetchNewPRs(gitToken, owner, repo, daysAgo);
+  const prs = await fetchNewPRs(gitToken, owner, repo, alertTime);
   console.log(
     `Found ${prs.length} new PRs:`,
     prs.map((pr) => pr.title)
