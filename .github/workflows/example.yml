@@ -1,0 +1,24 @@
+name: Monitor GitHub Repo
+
+on:
+  schedule:
+    - cron: "0 * * * *" # Runs every hour
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run GitHub Monitor Action
+        uses: ./
+        with:
+          task: "monitor-issues" # or monitor-prs
+          git_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+          slack_channel: ${{ secrets.SLACK_CHANNEL }}
+          repo_owner: "facebook"
+          repo_name: "react-native"
+          slack_id_type: "user"
+          slack_id: "U01N6V7HKUJ"

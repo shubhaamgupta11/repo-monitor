@@ -1,0 +1,37 @@
+name: Monitor Issues and PRs
+description: A GitHub Action to monitor new issues and pull requests and send notifications to Slack.
+author: Your Name <your.email@example.com>
+branding:
+  icon: zap
+  color: blue
+
+inputs:
+  git_secret:
+    description: GitHub token for authentication.
+    required: true
+  slack_bot_token:
+    description: Slack bot token to send notifications.
+    required: true
+  slack_channel:
+    description: The Slack channel to send notifications to.
+    required: true
+  repo_owner:
+    description: Owner of the repository.
+    required: true
+  repo_name:
+    description: Name of the repository.
+    required: true
+  slack_id_type:
+    description: Type of Slack ID (user or channel).
+    required: true
+  slack_id:
+    description: Slack ID of the recipient (user or channel).
+    required: true
+
+runs:
+  using: node16
+  main: index.js
+
+outputs:
+  result:
+    description: Result of the action execution.
