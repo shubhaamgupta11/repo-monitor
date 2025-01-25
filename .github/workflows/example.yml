@@ -1,10 +1,7 @@
 name: Monitor GitHub Repo
 
 on:
-  schedule:
-    - cron: "0 * * * *" # Runs every hour
   workflow_dispatch:
-
 jobs:
   run-notifier:
     runs-on: ubuntu-latest
