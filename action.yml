@@ -1,4 +1,4 @@
-name: Monitor Issues and PRs
+name: Repo Monitor
 description: A GitHub Action to monitor new issues and pull requests and send notifications to Slack.
 author: Your Name <your.email@example.com>
 branding:
