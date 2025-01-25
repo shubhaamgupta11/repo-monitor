@@ -1,5 +1,5 @@
-const { monitorIssues } = require("./monitor-new-issue");
-const { monitorPRs } = require("./monitor-new-pr");
+const monitorIssues = require("./monitor-new-issue");
+const monitorPRs = require("./monitor-new-pr");
 
 const core = require("@actions/core");
 
