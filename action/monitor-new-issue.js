@@ -109,4 +109,4 @@ async function monitorIssues({
   }
 }
 
-monitorIssues();
+module.exports = monitorIssues;

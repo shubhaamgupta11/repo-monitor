@@ -119,4 +119,4 @@ async function monitorPRs({
   }
 }
 
-monitorPRs();
+module.exports = monitorPRs;
