@@ -44,8 +44,8 @@ inputs:
 
 
 runs:
-  using: node16
-  main: index.js
+  using: node18
+  main: action/index.js
 
 outputs:
   result:
