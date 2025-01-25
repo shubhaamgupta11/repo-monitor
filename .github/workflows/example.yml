@@ -22,6 +22,6 @@ jobs:
           git_secret: ${{ secrets.GIT_SECRET }}
           notifier: "discord"
           fetch_data_interval: 24
-          discord_webhook_url: "https://discord.com/api/webhooks/1234567890/abc123"
+          discord_webhook_url: "https://discord.com/api/webhooks/1332703260401729689/5RWQZ3PticjEsiOh3BlxxWHJj_t2ucxxqAfIDj3ELZeZ06JXSoqW2F4fxjhvvYc6hNkP"
           repo_owner: "facebook"
           repo_name: "react-native"
