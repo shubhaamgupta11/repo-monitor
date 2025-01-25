@@ -1,12 +1,21 @@
 {
-  "name": "monitor-github-issues-prs",
-  "version": "1.0.0",
-  "description": "A GitHub Action to monitor a repository for new issues and PRs and send notifications to Slack.",
+  "name": "repo-monitor",
+  "version": "0.1.0",
+  "description": "A GitHub Action to monitor a repository for new issues and PRs and send notifications to different channels.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "author": "Your Name or Organization",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shubhaamgupta11/repo-monitor.git"
+  },
+  "keywords": ["github", "action", "slack", "discord", "issues", "prs", "monitor"],
+  "author": "Shubham Gupta",
+  "bugs": {
+    "url": "https://github.com/shubhaamgupta11/repo-monitor/issues"
+  },
+  "homepage": "https://github.com/shubhaamgupta11/repo-monitor#readme",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.5.0",
