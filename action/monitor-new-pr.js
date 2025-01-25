@@ -31,51 +31,65 @@ const slackWrapper = (token, channel) => {
   };
 };
 
+/**
+ * Fetch new pull requests created within the last `daysAgo` days.
+ *
+ * @param {string} gitToken - GitHub API token for authentication.
+ * @param {string} owner - Repository owner.
+ * @param {string} repo - Repository name.
+ * @param {number} daysAgo - Timeframe in days to fetch PRs created since then. Default: 1 day.
+ * @returns {Promise<Array>} - List of new pull requests created within the specified timeframe.
+ */
 const fetchNewPRs = async (gitToken, owner, repo, daysAgo = 1) => {
-  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/pulls?state=open`;
-  const cutoffDate = new Date(
-    new Date().getTime() - daysAgo * 24 * 60 * 60 * 1000
-  );
-
-  let newPRs = [];
-  let page = 1;
-
-  console.log(`Fetching PRs from ${apiUrl}`);
-
-  try {
-    while (true) {
-      console.log(`Fetching page ${page}...`);
-      const response = await axios.get(apiUrl, {
-        headers: { Authorization: `token ${gitToken}` },
-        params: { page, per_page: 100 },
-      });
-
-      const recentPRs = response.data.filter((pr) => {
-        const createdAt = new Date(pr.created_at);
-        return pr.user?.login !== "dependabot[bot]" && createdAt >= cutoffDate;
-      });
-
-      newPRs.push(
-        ...recentPRs.map((pr) => ({
-          author: pr.user.login,
-          title: pr.title,
-          url: pr.html_url,
-          createdAt: pr.created_at,
-          labels: pr.labels.map((label) => label.name),
-        }))
-      );
-
-      const linkHeader = response.headers["link"];
-      if (!linkHeader || !linkHeader.includes('rel="next"')) break;
-
-      page++;
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/pulls`;
+    const cutoffDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString();
+  
+    let newPRs = [];
+    let page = 1;
+  
+    console.log(`Fetching new PRs created in the last ${daysAgo} days from ${apiUrl}`);
+  
+    try {
+      while (true) {
+        console.log(`Fetching page ${page}...`);
+        const response = await axios.get(apiUrl, {
+          headers: { Authorization: `token ${gitToken}` },
+          params: {
+            state: "open", // Fetch only open PRs
+            per_page: 100, // Maximum results per page
+            page, // Current page of the results
+          },
+        });
+  
+        const recentPRs = response.data.filter((pr) => {
+          const createdAt = new Date(pr.created_at);
+          // Exclude PRs created by dependabot and older than the cutoff date
+          return pr.user?.login !== "dependabot[bot]" && createdAt >= new Date(cutoffDate);
+        });
+  
+        newPRs.push(
+          ...recentPRs.map((pr) => ({
+            author: pr.user.login,
+            title: pr.title,
+            url: pr.html_url,
+            createdAt: pr.created_at,
+            labels: pr.labels.map((label) => label.name),
+          }))
+        );
+  
+        const hasNextPage = response.headers["link"]?.includes('rel="next"');
+        if (!hasNextPage) break;
+  
+        page++;
+      }
+  
+      console.log(`Fetched ${newPRs.length} new PR(s)`);
+      return newPRs;
+    } catch (error) {
+      console.error("Error fetching PRs:", error.message);
+      return [];
     }
-    return newPRs;
-  } catch (error) {
-    console.error("Error fetching PRs from GitHub:", error.message);
-    return [];
-  }
-};
+  };  
 
 const sendSlackNotification = async (prs, slackToken, slackChannel, slackIDType, slackID, repo) => {
   if (prs.length === 0) {
