@@ -8,13 +8,14 @@ const sendDiscordNotification = require("./integrations/discord");
  * @param {string} gitToken - GitHub API token for authentication.
  * @param {string} owner - Repository owner.
  * @param {string} repo - Repository name.
- * @param {number} hoursAgo - Timeframe in hours to fetch issues created since then.
+ * @param {number} alertTime - Timeframe in hours to fetch issues created since then.
  * @returns {Promise<Array>} - List of new issues created within the specified timeframe.
  */
-const fetchNewIssues = async (gitToken, owner, repo, hoursAgo) => {
+const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues`;
+
   const sinceDate = new Date(
-    new Date().getTime() - hoursAgo * 60 * 60 * 1000
+    new Date().getTime() - alertTime * 60 * 60 * 1000
   ).toISOString();
 
   let newIssues = [];
@@ -71,10 +72,9 @@ async function monitorIssues({
   notifier,
   slackConfig,
   discordConfig,
+  alertTime,
 }) {
-  const hoursAgo = 24;
-
-  const issues = await fetchNewIssues(gitToken, owner, repo, hoursAgo);
+  const issues = await fetchNewIssues(gitToken, owner, repo, alertTime);
 
   if (notifier === "slack") {
     const {

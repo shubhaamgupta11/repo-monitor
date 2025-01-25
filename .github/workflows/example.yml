@@ -6,19 +6,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  monitor:
+  run-notifier:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Run GitHub Monitor Action
-        uses: ./
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          task: "monitor-issues" # or monitor-prs
-          git_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
-          slack_channel: ${{ secrets.SLACK_CHANNEL }}
+          node-version: '16'
+      - name: Run action
+        uses: ./ # path to your action
+        with:
+          task: "monitor-issues"
+          git_token: "${{ secrets.GITHUB_TOKEN }}"
+          notifier: "discord"  # or "slack"
+          fetch_data_interval: 24  # You can set this in hours
+          discord_webhook_url: "your_discord_webhook_url"
           repo_owner: "facebook"
           repo_name: "react-native"
-          slack_id_type: "user"
-          slack_id: "U01N6V7HKUJ"
+
