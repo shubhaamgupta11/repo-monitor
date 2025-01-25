@@ -12,6 +12,7 @@ inputs:
   git_secret:
     description: GitHub token for authentication.
     required: true
+    default: ${{ secrets.GIT_SECRET }}
   repo_owner:
     description: Owner of the repository.
     required: true
