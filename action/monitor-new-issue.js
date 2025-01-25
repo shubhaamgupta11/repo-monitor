@@ -26,59 +26,66 @@ const slackWrapper = (token, channel) => {
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const fetchIssuesWithinTimeFrame = async (gitToken, owner, repo, daysAgo, hoursAgo) => {
-  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues?state=open`;
-  const now = new Date();
-  const sinceDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-  const cutoffDate = new Date(now.getTime() - hoursAgo * 60 * 60 * 1000);
-
-  let issuesWithinTimeFrame = [];
-  let page = 1;
-  let olderIssueFound = false;
-
-  try {
-    while (true) {
-      const response = await axios.get(apiUrl, {
-        headers: { Authorization: `token ${gitToken}` },
-        params: {
-          page,
-          per_page: 100,
-          since: sinceDate.toISOString(),
-        },
-      });
-
-      const issues = response.data.filter((issue) => !issue.pull_request);
-
-      const recentIssues = issues.filter((issue) => {
-        const createdAt = new Date(issue.created_at);
-        if (createdAt < cutoffDate) {
-          olderIssueFound = true;
-          return false;
-        }
-        return createdAt <= now;
-      });
-
-      issuesWithinTimeFrame.push(
-        ...recentIssues.map((issue) => ({
-          title: issue.title,
-          url: issue.html_url,
-          createdAt: issue.created_at,
-          labels: issue.labels.map((label) => label.name),
-          comments: issue.comments,
-        }))
-      );
-
-      if (olderIssueFound || !response.headers["link"]?.includes('rel="next"')) break;
-
-      page++;
+/**
+ * Fetch new issues created within a configurable timeframe.
+ * 
+ * @param {string} gitToken - GitHub API token for authentication.
+ * @param {string} owner - Repository owner.
+ * @param {string} repo - Repository name.
+ * @param {number} hoursAgo - Timeframe in hours to fetch issues created since then.
+ * @returns {Promise<Array>} - List of new issues created within the specified timeframe.
+ */
+const fetchNewIssues = async (gitToken, owner, repo, hoursAgo) => {
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues`;
+    const sinceDate = new Date(new Date().getTime() - hoursAgo * 60 * 60 * 1000).toISOString();
+  
+    let newIssues = [];
+    let page = 1;
+  
+    try {
+      while (true) {
+        const response = await axios.get(apiUrl, {
+          headers: { Authorization: `token ${gitToken}` },
+          params: {
+            state: "open", // Only fetch open issues
+            sort: "created", // Sort by creation date
+            direction: "desc", // Fetch the most recent issues first
+            since: sinceDate, // Fetch issues created or updated after this timestamp
+            per_page: 100, // Maximum results per page
+            page, // Current page of the results
+          },
+        });
+  
+        const issues = response.data.filter((issue) => {
+          // Exclude pull requests and ensure the issue is newly created
+          const createdAt = new Date(issue.created_at);
+          return !issue.pull_request && createdAt >= new Date(sinceDate);
+        });
+  
+        // Map issues to include required fields
+        newIssues.push(
+          ...issues.map((issue) => ({
+            title: issue.title,
+            url: issue.html_url,
+            createdAt: issue.created_at,
+            labels: issue.labels.map((label) => label.name),
+            comments: issue.comments,
+          }))
+        );
+  
+        // Exit loop if no more pages to fetch
+        if (!response.headers["link"]?.includes('rel="next"')) break;
+  
+        page++; // Move to the next page
+      }
+  
+      return newIssues;
+    } catch (error) {
+      console.error("Error fetching issues:", error.message);
+      return [];
     }
+  };
 
-    return issuesWithinTimeFrame;
-  } catch (error) {
-    console.error("Error fetching issues:", error.message);
-    return [];
-  }
-};
 
 const sendSlackNotification = async (slackToken, slackChannel, slackIDType, slackID, issues, repo) => {
   if (!issues.length) {
@@ -119,10 +126,9 @@ const sendSlackNotification = async (slackToken, slackChannel, slackIDType, slac
 };
 
 async function monitorIssues(gitToken, slackToken, slackChannel, owner, repo, slackIDType, slackID) {
-  const fetchDaysAgo = 1;
-  const filterHoursAgo = 6;
+  const hoursAgo = 6;
 
-  const issues = await fetchIssuesWithinTimeFrame(gitToken, owner, repo, fetchDaysAgo, filterHoursAgo);
+  const issues = await fetchNewIssues(gitToken, owner, repo, hoursAgo);
   console.log("Issues to be notified via Slack:", issues.map((issue) => issue.title));
 
   await sendSlackNotification(slackToken, slackChannel, slackIDType, slackID, issues, repo);
