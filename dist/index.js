@@ -39703,8 +39703,8 @@ module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-const { monitorIssues } = __nccwpck_require__(901);
-const { monitorPRs } = __nccwpck_require__(554);
+const monitorIssues = __nccwpck_require__(901);
+const monitorPRs = __nccwpck_require__(554);
 
 const core = __nccwpck_require__(4967);
 
