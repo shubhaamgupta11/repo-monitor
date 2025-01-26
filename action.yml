@@ -1,5 +1,5 @@
-name: Repo Monitor
-description: A GitHub Action to monitor new issues and pull requests and send notifications to Slack.
+name: Repo Activity Monitor
+description: A GitHub Action to monitor new issues and pull requests and send notifications to different channels.
 author: Shubham Gupta <shubhaamgupta11@gmail.com>
 branding:
   icon: bell
