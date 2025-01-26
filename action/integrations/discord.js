@@ -15,7 +15,7 @@ const discordWrapper = (webhookUrl) => {
 };
 
 // Send Discord Notifications
-const sendDiscordNotification = async (webhookUrl, issues, repo) => {
+const sendDiscordNotification = async (webhookUrl, issues, repo, type) => {
     if (!issues.length) {
       console.log("No issues found within the specified time frame.");
       return;
@@ -24,12 +24,30 @@ const sendDiscordNotification = async (webhookUrl, issues, repo) => {
     const discord = discordWrapper(webhookUrl);
   
     for (const issue of issues) {
-      const message = `
-      **New Issue in ${repo}**  
-      **Title:** ${issue.title}  
-      **Labels:** ${issue.labels.map((label) => `\`${label}\``).join(", ")}  
-      **Link:** ${issue.url}
-      `;
+        let message = '';
+        if (type === 'issue') {
+            message = `
+            :chart_with_upwards_trend: **New Issue in ${repo}**  
+            *-* **Title:** ${issue.title}  
+            *-* **Labels:** ${issue.labels
+              .map((label) => `\`${label}\``)
+              .join(", ")}  
+            *-* **Link:** <${issue.url}>
+
+        Mark as acknowledged👍 after triaging
+        `;
+        } else if (type === 'pr') {
+            message = `
+            :sparkles: **New Pull Request in ${repo}**  
+            *-* **Title:** ${issue.title}  
+            *-* **Author:** ${issue.author}
+            *-* **Labels:** ${issue.labels
+              .map((label) => `\`${label}\``)
+              .join(", ")}  
+            *-* **Link:** <${issue.url}>
+        Review and acknowledge👍
+        `;
+        }
   
       try {
         await discord.sendMessage(message);

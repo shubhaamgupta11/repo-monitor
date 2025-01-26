@@ -98,7 +98,8 @@ async function monitorIssues({
       slackIDType,
       slackID,
       issues,
-      repo
+      repo,
+      "issue"
     );
   } else if (notifier === "discord") {
     const {
@@ -108,7 +109,7 @@ async function monitorIssues({
       "🔔 Sending notifications to Discord for issues:",
       issues.map((issue) => issue.title)
     );
-    await sendDiscordNotification(discordWebhookUrl, issues, repo);
+    await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue");
   } else {
     throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
   }
