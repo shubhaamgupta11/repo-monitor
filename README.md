@@ -47,9 +47,11 @@ jobs:
           # Slack-specific inputs
           slack_bot_token: "${{ secrets.SLACK_BOT_TOKEN }}"
           slack_channel: "<channel-id>"
-          slack_id_type: "<user/group>"
-          slack_id: "<user-id/group-id>"
+          slack_id_type: "<user/group>" # Optional: Only needed to ping someone directly.
+          slack_id: "<user-id/group-id>" # Optional: Only needed if slack_id_type is provided.
 ```
+
+> **Note:** slack_id_type and slack_id are only needed if you want to ping someone directly.
 
 ### Monitoring PRs with Discord
 
@@ -84,7 +86,7 @@ jobs:
           discord_webhook_url: "${{ secrets.DISCORD_WEBHOOK_URL }}"
 ```
 
-> **Note:** You can configure any notifier (slack, discord) for any task (monitor-issues, monitor-prs, etc.).
+> **Note:** You can configure any notifier (slack, discord) for any task (monitor-issues, monitor-prs, etc.). 
 
 ## 🔧 Inputs
 
