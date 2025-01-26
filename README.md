@@ -4,7 +4,7 @@ Managing activity in open-source repositories can be challenging. With a constan
 
 ## Repo Activity Monitor
 
-This [GitHub Action](https://github.com/marketplace/actions/repo-monitor) empowers open-source maintainers by:
+This [GitHub Action](https://github.com/marketplace/actions/repo-activity-monitor) empowers open-source maintainers by:
 
 - Tracking new issues and pull requests.
 - Sending auto-generated notifications to **Slack** or **Discord**.
