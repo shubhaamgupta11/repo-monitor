@@ -1,4 +1,4 @@
-# GitHub Action for Tracking Issues & Pull Requests
+# Monitor Issues & PRs with Slack/Discord Notifications
 
 Managing activity in open-source repositories can be challenging. With a constant influx of **issues** and **pull requests**, it's easy to lose track of what needs attention—especially when working with large teams or active projects. Missed notifications or delayed responses can lead to bottlenecks, reduced contributor satisfaction, and slower project progress.
 
@@ -6,10 +6,12 @@ Managing activity in open-source repositories can be challenging. With a constan
 
 This [GitHub Action](https://github.com/marketplace/actions/repo-monitor) empowers open-source maintainers by:
 
-- Tracking new issues and pull requests in real time.
-- Sending notifications to your preferred communication platforms like **Slack** or **Discord**
+- Tracking new issues and pull requests in real-time.
+- Sending auto-generated notifications to **Slack** or **Discord**.
+- Customizing Slack notifications with the ability to ping specific users or groups.
+- Allowing Slack notifications to be sent to designated channels.
 
-With **Repo ActivityMonitor**, you can stay on top of your repositories' activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
+With **Repo Activity Monitor**, you can stay on top of your repositories' activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
 
 ## Usage
 
@@ -34,16 +36,19 @@ jobs:
       - name: Monitor New Issues
         uses: shubhaamgupta11/repo-monitor@v0.6.0
         with:
+          # required inputs
           task: "monitor-issues"
           git_secret: "${{ secrets.GITHUB_TOKEN }}"
           notifier: "slack"
           fetch_data_interval: 1  # Hours (must align with your cron schedule)
+          # repo inputs
+          repo_owner: "<owner>"
+          repo_name: "<repo>"
+          # Slack-specific inputs
           slack_bot_token: "${{ secrets.SLACK_BOT_TOKEN }}"
           slack_channel: "<channel-id>"
           slack_id_type: "<user/group>"
           slack_id: "<user-id/group-id>"
-          repo_owner: "<owner>"
-          repo_name: "<repo>"
 ```
 
 ### Monitoring PRs with Discord
@@ -67,13 +72,16 @@ jobs:
       - name: Monitor New PRs
         uses: shubhaamgupta11/repo-monitor@v0.6.0
         with:
+          # required inputs
           task: "monitor-prs"
           git_secret: "${{ secrets.GITHUB_TOKEN }}"
           notifier: "discord"
           fetch_data_interval: 1  # Hours (must align with your cron schedule)
-          discord_webhook_url: "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          # repo inputs
           repo_owner: "<owner>"
-          repo_name: "<repo>"       
+          repo_name: "<repo>"
+          # Discord-specific inputs
+          discord_webhook_url: "${{ secrets.DISCORD_WEBHOOK_URL }}"
 ```
 
 > **Note:** You can configure any notifier (slack, discord, or others) for any task (monitor-issues, monitor-prs, etc.).
@@ -104,7 +112,7 @@ jobs:
 
 ### Slack
 
-- Create a Slack App.
+- Create a [Slack App](https://api.slack.com/bot-users#creating-bot-user).
 - Generate a Slack Bot Token.
 - Retrieve the Channel ID and User/Group IDs.
 - Add these secrets to your GitHub repository:
@@ -115,7 +123,7 @@ jobs:
 
 ### Discord
 
-- Create a Discord Webhook.
+- Create a [Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks).
 - Copy the Webhook URL.
 - Add the Webhook URL to your GitHub repository secrets as `DISCORD_WEBHOOK_URL`.
 
