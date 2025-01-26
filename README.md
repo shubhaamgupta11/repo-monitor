@@ -6,12 +6,12 @@ Managing activity in open-source repositories can be challenging. With a constan
 
 This [GitHub Action](https://github.com/marketplace/actions/repo-monitor) empowers open-source maintainers by:
 
-- Tracking new issues and pull requests in real-time.
+- Tracking new issues and pull requests.
 - Sending auto-generated notifications to **Slack** or **Discord**.
 - Customizing Slack notifications with the ability to ping specific users or groups.
 - Allowing Slack notifications to be sent to designated channels.
 
-With **Repo Activity Monitor**, you can stay on top of your repositories' activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
+With **Repo Activity Monitor**, you can stay on top of your repositories activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
 
 ## Usage
 
@@ -84,7 +84,7 @@ jobs:
           discord_webhook_url: "${{ secrets.DISCORD_WEBHOOK_URL }}"
 ```
 
-> **Note:** You can configure any notifier (slack, discord, or others) for any task (monitor-issues, monitor-prs, etc.).
+> **Note:** You can configure any notifier (slack, discord) for any task (monitor-issues, monitor-prs, etc.).
 
 ## 🔧 Inputs
 
@@ -92,8 +92,8 @@ jobs:
 | ----- | ----------- | -------- | ------- |
 | task | The task to run (monitor-issues or monitor-prs). | Yes | None |
 | git_secret | GitHub token for authentication. | Yes | None |
-| repo_owner | The owner of the GitHub repository (`facebook`). | Yes | None |
-| repo_name | The name of the GitHub repository (`react-native`). | Yes | None |
+| repo_owner | The owner of the GitHub repository (`user-name`). | Yes | None |
+| repo_name | The name of the GitHub repository (`repo-name`). | Yes | None |
 | fetch_data_interval | The time interval to fetch data for (e.g., 1 hour, 24 hours). This should align with the cron schedule. | Yes | None |
 | notifier | Notification method (**slack** or **discord**). | Yes | None |
 | slack_bot_token | Slack bot token to send notifications (required if notifier=`slack`). | No | None |
@@ -129,7 +129,7 @@ jobs:
 
 ## 🔮 Roadmap
 
-- [ ] **Generalize Notification Channels**: Allow adding multiple notification methods (e.g.  Webhooks).
+- [ ] **Generalize Notification Channels**: Allow adding multiple notification methods (e.g.  Webhooks, MS Teams).
 - [ ] **Support Custom Filters**: Enable users to apply filters like labels, authors, or milestones to issues and PRs.
 - [ ] **Handle API Rate Limiting**: Add rate limiting or retry logic for handling GitHub API rate limits.
 - [ ] **Track inactivity** on issues and notify users after a specific TAT (Turnaround Time).
