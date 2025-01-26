@@ -1,15 +1,84 @@
-# Monitor Issues and PRs GitHub Action
+# GitHub Action for Tracking Issues & Pull Requests
 
-## Overview
-A GitHub Action to monitor new issues and pull requests in a specified repository and send notifications to Slack or Discord. This action allows you to track activity in your repositories and get alerted when new issues or PRs are created.
+Managing activity in open-source repositories can be challenging. With a constant influx of **issues** and **pull requests**, it's easy to lose track of what needs attention—especially when working with large teams or active projects. Missed notifications or delayed responses can lead to bottlenecks, reduced contributor satisfaction, and slower project progress.
 
-## Features
+## Repo Activity Monitor
 
-- Monitor issues and PRs in a GitHub repository.
-- Support for multiple notification methods.
-- Easy integration with GitHub workflows.
+This [GitHub Action](https://github.com/marketplace/actions/repo-monitor) empowers open-source maintainers by:
 
-## Inputs
+- Tracking new issues and pull requests in real time.
+- Sending notifications to your preferred communication platforms like **Slack** or **Discord**
+
+With **Repo ActivityMonitor**, you can stay on top of your repositories' activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
+
+## Usage
+
+### Monitoring Issues with Slack
+
+```yml
+name: Monitor GitHub Repo
+
+on:
+  schedule:
+    - cron: "0 * * * *" # Runs every hour
+  workflow_dispatch: # Optional
+
+jobs:
+  run-notifier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Monitor New Issues
+        uses: shubhaamgupta11/repo-monitor@v0.6.0
+        with:
+          task: "monitor-issues"
+          git_secret: "${{ secrets.GITHUB_TOKEN }}"
+          notifier: "slack"
+          fetch_data_interval: 1  # Hours (must align with your cron schedule)
+          slack_bot_token: "${{ secrets.SLACK_BOT_TOKEN }}"
+          slack_channel: "<channel-id>"
+          slack_id_type: "<user/group>"
+          slack_id: "<user-id/group-id>"
+          repo_owner: "<owner>"
+          repo_name: "<repo>"
+```
+
+### Monitoring PRs with Discord
+
+```yml
+name: Monitor GitHub Repo
+
+on:
+  schedule:
+    - cron: "0 * * * *" # Runs every hour
+  workflow_dispatch: # Optional to trigger manually
+
+jobs:
+  run-notifier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Monitor New PRs
+        uses: shubhaamgupta11/repo-monitor@v0.6.0
+        with:
+          task: "monitor-prs"
+          git_secret: "${{ secrets.GITHUB_TOKEN }}"
+          notifier: "discord"
+          fetch_data_interval: 1  # Hours (must align with your cron schedule)
+          discord_webhook_url: "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          repo_owner: "<owner>"
+          repo_name: "<repo>"       
+```
+
+> **Note:** You can configure any notifier (slack, discord, or others) for any task (monitor-issues, monitor-prs, etc.).
+
+## 🔧 Inputs
 
 | Input | Description | Required | Default |
 | ----- | ----------- | -------- | ------- |
@@ -25,64 +94,38 @@ A GitHub Action to monitor new issues and pull requests in a specified repositor
 | slack_id | user id or group id as per `slack_id_type` (required if notifier=`slack`). | No | None |
 | discord_webhook_url | Discord webhook URL to send notifications (required if notifier=`discord`). | No | None |
 
-## Example Usage
-
-```yml
-name: Monitor GitHub Repo
-
-on:
-  schedule:
-    - cron: "0 * * * *" # Runs every hour
-  workflow_dispatch:
-
-jobs:
-  run-notifier:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - name: Run action
-        uses: ./ # Path to your action
-        with:
-          task: "monitor-issues"
-          git_secret: "${{ secrets.GITHUB_TOKEN }}"
-          notifier: "slack"  # Or "discord"
-          fetch_data_interval: 24  # Hours (must align with your cron schedule)
-          slack_bot_token: "${{ secrets.SLACK_BOT_TOKEN }}"
-          slack_channel: "#your-channel"
-          repo_owner: "facebook"
-          repo_name: "react-native"
-```
-
-## How It Works
+## 📖 How It Works
 - The action listens for new issues or PRs in the specified GitHub repository.
 - Depending on the `task` input, it will either monitor new issues (`monitor-issues`) or pull requests (`monitor-prs`).
 - Once a new issue or PR is detected, it sends a notification via Slack or Discord based on the `notifier` input.
 - The action checks for issues or PRs within the time period defined by `fetch_data_interval`, which should align with the cron schedule. For example, if the cron schedule is set to run every hour `(0 * * * *)`, set `fetch_data_interval` to 1 hour.
 
-## Setting up Slack
-If you choose Slack as the notification method, you will need to create a Slack app and retrieve the **Slack Bot Token** and **Channel**:
+## 🔧 Setting Up
 
-- Create a Slack app.
-- Generate a **Slack Bot Token**.
-- Get the **Channel I**D.
-- Get the **Slack User ID** or **Group ID**.
-- Add these tokens/IDs to the GitHub secrets (`SLACK_BOT_TOKEN`, `SLACK_CHANNEL`, `SLACK_ID_TYPE`, and `SLACK_ID`).
+### Slack
 
-`slack_id_type` Explanation
-- `user`: Use this if you want to send a notification to an individual user.
-- `group`: Use this if you want to send a notification to a group of users (e.g., a Slack channel or a group).
+- Create a Slack App.
+- Generate a Slack Bot Token.
+- Retrieve the Channel ID and User/Group IDs.
+- Add these secrets to your GitHub repository:
+  - `SLACK_BOT_TOKEN`
+  - `SLACK_CHANNEL`
+  - `SLACK_ID_TYPE`
+  - `SLACK_ID`
 
-## Setting up Discord
-If you choose Discord as the notification method, you will need a Discord Webhook URL:
+### Discord
 
-- Create a **Discord Webhook**.
-- Copy the Webhook URL and add it to the GitHub secrets (`DISCORD_WEBHOOK_URL`).
+- Create a Discord Webhook.
+- Copy the Webhook URL.
+- Add the Webhook URL to your GitHub repository secrets as `DISCORD_WEBHOOK_URL`.
 
-## Roadmap
-- [ ] Generalize Notification Channels: Allow adding multiple notification methods (e.g.  Webhooks).
-- [ ] Support Custom Filters: Enable users to apply filters like labels, authors, or milestones to issues and PRs.
-- [ ] Handle API Rate Limiting: Add rate limiting or retry logic for handling GitHub API rate limits.
+## 🔮 Roadmap
 
+- [ ] **Generalize Notification Channels**: Allow adding multiple notification methods (e.g.  Webhooks).
+- [ ] **Support Custom Filters**: Enable users to apply filters like labels, authors, or milestones to issues and PRs.
+- [ ] **Handle API Rate Limiting**: Add rate limiting or retry logic for handling GitHub API rate limits.
+- [ ] **Track inactivity** on issues and notify users after a specific TAT (Turnaround Time).
+
+## 📜 License
+
+This project is licensed under the [MIT License](https://github.com/shubhaamgupta11/repo-monitor/blob/main/LICENSE).

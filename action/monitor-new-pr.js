@@ -13,16 +13,13 @@ const sendDiscordNotification = require("./integrations/discord");
  */
 const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/pulls`;
+  console.log("🔍  Fetching new PRs... ", apiUrl);
   const cutoffDate = new Date(
     Date.now() - alertTime * 60 * 60 * 1000
   ).toISOString();
 
   let newPRs = [];
   let page = 1;
-
-  console.log(
-    `Fetching new PRs created in the last ${alertTime} days from ${apiUrl}`
-  );
 
   try {
     while (true) {
@@ -81,10 +78,11 @@ async function monitorPRs({
   console.log("Starting PR monitor...");
 
   const prs = await fetchNewPRs(gitToken, owner, repo, alertTime);
-  console.log(
-    `Found ${prs.length} new PRs:`,
-    prs.map((pr) => pr.title)
-  );
+
+  if (prs.length === 0) {
+    console.log("No new PRs found.");
+    return;
+  }
 
   if (notifier === "slack") {
     const {
@@ -94,7 +92,7 @@ async function monitorPRs({
       slackID,
     } = slackConfig;
     console.log(
-      "Sending notifications to Slack for PRs:",
+      "🔔 Sending notifications to Slack for PRs:",
       prs.map((pr) => pr.title)
     );
     await sendSlackNotification(
@@ -110,7 +108,7 @@ async function monitorPRs({
       discordWebhookUrl,
     } = discordConfig;
     console.log(
-      "Sending notifications to Discord for PRs:",
+      "🔔 Sending notifications to Discord for PRs:",
       prs.map((pr) => pr.title)
     );
     await sendDiscordNotification(discordWebhookUrl, prs, repo);

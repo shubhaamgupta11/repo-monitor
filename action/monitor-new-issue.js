@@ -13,7 +13,7 @@ const sendDiscordNotification = require("./integrations/discord");
  */
 const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues`;
-
+  console.log("🔍  Fetching new issues... ", apiUrl);
   const sinceDate = new Date(
     new Date().getTime() - alertTime * 60 * 60 * 1000
   ).toISOString();
@@ -76,6 +76,11 @@ async function monitorIssues({
 }) {
   const issues = await fetchNewIssues(gitToken, owner, repo, alertTime);
 
+  if (issues.length === 0) {
+    console.log("No new issues found.");
+    return;
+  }
+
   if (notifier === "slack") {
     const {
       slackToken,
@@ -84,7 +89,7 @@ async function monitorIssues({
       slackID,
     } = slackConfig;
     console.log(
-      "Sending notifications to Slack for issues:",
+      "🔔 Sending notifications to Slack for issues:",
       issues.map((issue) => issue.title)
     );
     await sendSlackNotification(
@@ -100,7 +105,7 @@ async function monitorIssues({
       discordWebhookUrl,
     } = discordConfig;
     console.log(
-      "Sending notifications to Discord for issues:",
+      "🔔 Sending notifications to Discord for issues:",
       issues.map((issue) => issue.title)
     );
     await sendDiscordNotification(discordWebhookUrl, issues, repo);
