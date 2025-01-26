@@ -24,42 +24,76 @@ const slackWrapper = (token, channel) => {
   };
 };
 
-const sendSlackNotification = async (slackToken, slackChannel, slackIDType, slackID, issues, repo) => {
-    if (!issues.length) {
-      console.log("No issues found within the specified time frame.");
-      return;
-    }
-  
-    const slack = slackWrapper(slackToken, slackChannel);
-  
-    const assigneeText =
-      slackIDType === "group"
-        ? `*Assignee:* <!subteam^${slackID}> *(Mark as ACK or Done after triaging)*`
-        : slackIDType === "user"
-        ? `*Assignee:* <@${slackID}> *(Mark as ACK or Done after triaging)*`
-        : "";
-  
-    for (const issue of issues) {
-      const message = `
-      :chart_with_upwards_trend: *New Issue in ${repo}*  
-      *-* *Title:* ${issue.title}  
-      *-* *Labels:* ${issue.labels.map((label) => `\`${label}\``).join(", ")}  
-      *-* *Link:* <${issue.url}|View Issue>  
-      ${assigneeText}
-      `;
-  
-      try {
-        await slack.sendMessage({ text: message });
-        console.log(`Posted issue "${issue.title}" to Slack.`);
-      } catch (error) {
-        console.error(`Failed to post issue "${issue.title}" to Slack:`, error.message);
+const sendSlackNotification = async (
+  slackToken,
+  slackChannel,
+  slackIDType,
+  slackID,
+  issues,
+  repo,
+  type
+) => {
+  if (!issues.length) {
+    console.log("No issues found within the specified time frame.");
+    return;
+  }
+
+  const slack = slackWrapper(slackToken, slackChannel);
+
+  for (const issue of issues) {
+    let message = "";
+    let assigneeText = "";
+
+    if (type === "issue") {
+      assigneeText =
+        slackIDType === "group"
+          ? `*Assignee:* <!subteam^${slackID}> *(Mark as ACK or Done after triaging)*`
+          : slackIDType === "user"
+          ? `*Assignee:* <@${slackID}> *(Mark as ACK or Done after triaging)*`
+          : "";
+
+      message = `
+            :chart_with_upwards_trend: *New Issue in ${repo}*  
+            *-* *Title:* ${issue.title}  
+            *-* *Labels:* ${issue.labels
+              .map((label) => `\`${label}\``)
+              .join(", ")}  
+            *-* *Link:* <${issue.url}|View Issue>  
+            ${assigneeText}
+        `;
+    } else if (type === "pr") {
+      if (slackIDType === "group") {
+        assigneeText = `*Reviewer:* <!subteam^${slackID}> *(Review and acknowledge)*`;
+      } else if (slackIDType === "user") {
+        assigneeText = `*Reviewer:* <@${slackID}> *(Review and acknowledge)*`;
       }
-  
-      console.log("Waiting for 30 seconds before sending the next message...");
-      await delay(5 * 1000);
+      message = `
+            :sparkles: *New Pull Request in ${repo}*  
+            *-* *Title:* ${issue.title}  
+            *-* *Author:* ${issue.author}
+            *-* *Labels:* ${issue.labels
+              .map((label) => `\`${label}\``)
+              .join(", ")}  
+            *-* *Link:* <${issue.url}|View PR>  
+            ${assigneeText}
+            `;
     }
-  
-    console.log(`*** All issues posted on Slack for ${repo} ***`);
-  };
+
+    try {
+      await slack.sendMessage({ text: message });
+      console.log(`Posted issue "${issue.title}" to Slack.`);
+    } catch (error) {
+      console.error(
+        `Failed to post issue "${issue.title}" to Slack:`,
+        error.message
+      );
+    }
+
+    console.log("Waiting for 30 seconds before sending the next message...");
+    await delay(5 * 1000);
+  }
+
+  console.log(`*** All issues posted on Slack for ${repo} ***`);
+};
 
 module.exports = sendSlackNotification;
