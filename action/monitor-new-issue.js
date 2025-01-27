@@ -62,7 +62,7 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
 
     return newIssues;
   } catch (error) {
-    console.error("Error fetching issues:", error.message);
+    console.error("Error fetching issues:", error.response.data);
     return [];
   }
 };
