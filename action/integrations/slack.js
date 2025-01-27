@@ -1,5 +1,6 @@
 const { WebClient } = require("@slack/web-api");
 const delay = require("../utility/delay");
+const { generateSlackPayload } = require("../utility/generatePayload");
 
 const slackWrapper = (token, channel) => {
   const client = new WebClient(token);
@@ -41,46 +42,16 @@ const sendSlackNotification = async (
   const slack = slackWrapper(slackToken, slackChannel);
 
   for (const issue of issues) {
-    let message = "";
-    let assigneeText = "";
-
-    if (type === "issue") {
-      assigneeText =
-        slackIDType === "group"
-          ? `*Assignee:* <!subteam^${slackID}> *(Mark as ACK or Done after triaging)*`
-          : slackIDType === "user"
-          ? `*Assignee:* <@${slackID}> *(Mark as ACK or Done after triaging)*`
-          : "";
-
-      message = `
-            :chart_with_upwards_trend: *New Issue in ${repo}*  
-            *-* *Title:* ${issue.title}  
-            *-* *Labels:* ${issue.labels
-              .map((label) => `\`${label}\``)
-              .join(", ")}  
-            *-* *Link:* <${issue.url}|View Issue>  
-            ${assigneeText}
-        `;
-    } else if (type === "pr") {
-      if (slackIDType === "group") {
-        assigneeText = `*Reviewer:* <!subteam^${slackID}> *(Review and acknowledge)*`;
-      } else if (slackIDType === "user") {
-        assigneeText = `*Reviewer:* <@${slackID}> *(Review and acknowledge)*`;
-      }
-      message = `
-            :sparkles: *New Pull Request in ${repo}*  
-            *-* *Title:* ${issue.title}  
-            *-* *Author:* ${issue.author}
-            *-* *Labels:* ${issue.labels
-              .map((label) => `\`${label}\``)
-              .join(", ")}  
-            *-* *Link:* <${issue.url}|View PR>  
-            ${assigneeText}
-            `;
-    }
+    const payload = generateSlackPayload({
+      type,
+      repo,
+      issue,
+      slackIDType,
+      slackID,
+    });
 
     try {
-      await slack.sendMessage({ text: message });
+      await slack.sendMessage(payload);
       console.log(`Posted issue "${issue.title}" to Slack.`);
     } catch (error) {
       console.error(
@@ -89,7 +60,7 @@ const sendSlackNotification = async (
       );
     }
 
-    console.log("Waiting for 30 seconds before sending the next message...");
+    // Introduce a delay between messages to avoid rate limiting
     await delay(5 * 1000);
   }
 

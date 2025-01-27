@@ -46,6 +46,8 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
         ...issues.map((issue) => ({
           title: issue.title,
           url: issue.html_url,
+          avatar_url: issue.user.avatar_url,
+          author: issue.user.login,
           createdAt: issue.created_at,
           labels: issue.labels.map((label) => label.name),
           comments: issue.comments,
@@ -60,7 +62,7 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
 
     return newIssues;
   } catch (error) {
-    console.error("Error fetching issues:", error.message);
+    console.error("Error fetching issues:", error.response.data);
     return [];
   }
 };
@@ -104,12 +106,14 @@ async function monitorIssues({
   } else if (notifier === "discord") {
     const {
       discordWebhookUrl,
+      discordIDType,
+      discordID,
     } = discordConfig;
     console.log(
       "🔔 Sending notifications to Discord for issues:",
       issues.map((issue) => issue.title)
     );
-    await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue");
+    await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue", discordIDType, discordID);
   } else {
     throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
   }

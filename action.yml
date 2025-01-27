@@ -41,10 +41,16 @@ inputs:
   discord_webhook_url:
     description: Discord webhook URL to send notifications.
     required: false
+  discord_id_type:
+    description: Type of Discord ID (user or role).
+    required: false
+  discord_id:
+    description: Discord ID of the recipient (user or role).
+    required: false
 
 
 runs:
-  using: node16
+  using: node22
   main: dist/index.js
 
 outputs:

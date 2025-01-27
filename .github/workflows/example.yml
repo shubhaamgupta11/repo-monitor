@@ -1,27 +1,26 @@
-name: Test Action
+name: Repo Activity Monitor Workflow
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
-  test-action:
+  monitor-repo-activity:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@v3
-
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22 # Use Node.js 22 for the workflow
 
-      - name: Test Local Action
-        uses: ./ # This points to the root of your action's repo
+      - name: Run Repo Activity Monitor
+        uses: ./ # Points to the local action repository
         with:
-          task: "monitor-issues"
-          git_secret: ${{ secrets.GIT_SECRET }}
-          notifier: "discord"
-          fetch_data_interval: 2 # in hours
-          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          repo_owner: "facebook"
-          repo_name: "react-native"
+          task: "monitor-issues" # Task to monitor issues (can be "monitor-prs" as well)
+          git_secret: ${{ secrets.GIT_SECRET }} # GitHub token
+          repo_owner: "facebook" # Replace with the repository owner
+          repo_name: "react-native" # Replace with the repository name
+          fetch_data_interval: 2 # Fetch data from the last 2 hours
+          notifier: "discord" # Use Discord for notifications
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }} # Discord webhook URL
+          discord_id_type: "role" # Type of Discord ID ("user" or "role")
+          discord_id: "111111111111111111" # Replace with the Discord role ID to mention

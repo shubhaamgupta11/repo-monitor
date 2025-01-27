@@ -6,10 +6,12 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 const axios = __nccwpck_require__(8757);
 const delay = __nccwpck_require__(4737);
+const { generateDiscordPayload } = __nccwpck_require__(1458);
+
 const discordWrapper = (webhookUrl) => {
   const sendMessage = async (content) => {
     try {
-      await axios.post(webhookUrl, { content });
+      await axios.post(webhookUrl,  content );
     } catch (e) {
       console.error("Unable to send Discord message:", e.message);
     }
@@ -21,48 +23,26 @@ const discordWrapper = (webhookUrl) => {
 };
 
 // Send Discord Notifications
-const sendDiscordNotification = async (webhookUrl, issues, repo, type) => {
+const sendDiscordNotification = async (webhookUrl, issues, repo, type, discordIDType, discordID) => {
     if (!issues.length) {
       console.log("No issues found within the specified time frame.");
       return;
     }
   
     const discord = discordWrapper(webhookUrl);
-  
-    for (const issue of issues) {
-        let message = '';
-        if (type === 'issue') {
-            message = `
-            :chart_with_upwards_trend: **New Issue in ${repo}**  
-            *-* **Title:** ${issue.title}  
-            *-* **Labels:** ${issue.labels
-              .map((label) => `\`${label}\``)
-              .join(", ")}  
-            *-* **Link:** <${issue.url}>
 
-        Mark as acknowledged👍 after triaging
-        `;
-        } else if (type === 'pr') {
-            message = `
-            :sparkles: **New Pull Request in ${repo}**  
-            *-* **Title:** ${issue.title}  
-            *-* **Author:** ${issue.author}
-            *-* **Labels:** ${issue.labels
-              .map((label) => `\`${label}\``)
-              .join(", ")}  
-            *-* **Link:** <${issue.url}>
-        Review and acknowledge👍
-        `;
-        }
+
+    for (const issue of issues) {
+      let payload = generateDiscordPayload({type, repo, issue, discordIDType, discordID});
   
       try {
-        await discord.sendMessage(message);
+        await discord.sendMessage(payload);
         console.log(`Posted issue "${issue.title}" to Discord.`);
       } catch (error) {
         console.error(`Failed to post issue "${issue.title}" to Discord:`, error.message);
       }
   
-      console.log("Waiting for 30 seconds before sending the next message...");
+      // Introduce a delay between messages to avoid rate limiting
       await delay(5 * 1000);
     }
   
@@ -79,6 +59,7 @@ module.exports = sendDiscordNotification;
 
 const { WebClient } = __nccwpck_require__(431);
 const delay = __nccwpck_require__(4737);
+const { generateSlackPayload } = __nccwpck_require__(1458);
 
 const slackWrapper = (token, channel) => {
   const client = new WebClient(token);
@@ -120,46 +101,16 @@ const sendSlackNotification = async (
   const slack = slackWrapper(slackToken, slackChannel);
 
   for (const issue of issues) {
-    let message = "";
-    let assigneeText = "";
-
-    if (type === "issue") {
-      assigneeText =
-        slackIDType === "group"
-          ? `*Assignee:* <!subteam^${slackID}> *(Mark as ACK or Done after triaging)*`
-          : slackIDType === "user"
-          ? `*Assignee:* <@${slackID}> *(Mark as ACK or Done after triaging)*`
-          : "";
-
-      message = `
-            :chart_with_upwards_trend: *New Issue in ${repo}*  
-            *-* *Title:* ${issue.title}  
-            *-* *Labels:* ${issue.labels
-              .map((label) => `\`${label}\``)
-              .join(", ")}  
-            *-* *Link:* <${issue.url}|View Issue>  
-            ${assigneeText}
-        `;
-    } else if (type === "pr") {
-      if (slackIDType === "group") {
-        assigneeText = `*Reviewer:* <!subteam^${slackID}> *(Review and acknowledge)*`;
-      } else if (slackIDType === "user") {
-        assigneeText = `*Reviewer:* <@${slackID}> *(Review and acknowledge)*`;
-      }
-      message = `
-            :sparkles: *New Pull Request in ${repo}*  
-            *-* *Title:* ${issue.title}  
-            *-* *Author:* ${issue.author}
-            *-* *Labels:* ${issue.labels
-              .map((label) => `\`${label}\``)
-              .join(", ")}  
-            *-* *Link:* <${issue.url}|View PR>  
-            ${assigneeText}
-            `;
-    }
+    const payload = generateSlackPayload({
+      type,
+      repo,
+      issue,
+      slackIDType,
+      slackID,
+    });
 
     try {
-      await slack.sendMessage({ text: message });
+      await slack.sendMessage(payload);
       console.log(`Posted issue "${issue.title}" to Slack.`);
     } catch (error) {
       console.error(
@@ -168,7 +119,7 @@ const sendSlackNotification = async (
       );
     }
 
-    console.log("Waiting for 30 seconds before sending the next message...");
+    // Introduce a delay between messages to avoid rate limiting
     await delay(5 * 1000);
   }
 
@@ -231,6 +182,8 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
         ...issues.map((issue) => ({
           title: issue.title,
           url: issue.html_url,
+          avatar_url: issue.user.avatar_url,
+          author: issue.user.login,
           createdAt: issue.created_at,
           labels: issue.labels.map((label) => label.name),
           comments: issue.comments,
@@ -245,7 +198,7 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
 
     return newIssues;
   } catch (error) {
-    console.error("Error fetching issues:", error.message);
+    console.error("Error fetching issues:", error.response.data);
     return [];
   }
 };
@@ -289,12 +242,14 @@ async function monitorIssues({
   } else if (notifier === "discord") {
     const {
       discordWebhookUrl,
+      discordIDType,
+      discordID,
     } = discordConfig;
     console.log(
       "🔔 Sending notifications to Discord for issues:",
       issues.map((issue) => issue.title)
     );
-    await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue");
+    await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue", discordIDType, discordID);
   } else {
     throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
   }
@@ -354,6 +309,7 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
       newPRs.push(
         ...recentPRs.map((pr) => ({
           author: pr.user.login,
+          avatar_url: pr.user.avatar_url,
           title: pr.title,
           url: pr.html_url,
           createdAt: pr.created_at,
@@ -416,12 +372,14 @@ async function monitorPRs({
   } else if (notifier === "discord") {
     const {
       discordWebhookUrl,
+      discordIDType,
+      discordID,
     } = discordConfig;
     console.log(
       "🔔 Sending notifications to Discord for PRs:",
       prs.map((pr) => pr.title)
     );
-    await sendDiscordNotification(discordWebhookUrl, prs, repo, "pr");
+    await sendDiscordNotification(discordWebhookUrl, prs, repo, "pr", discordIDType, discordID);
   } else {
     throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
   }
@@ -436,6 +394,229 @@ module.exports = monitorPRs;
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 module.exports = delay;
+
+/***/ }),
+
+/***/ 1458:
+/***/ ((module) => {
+
+function generateSlackPayload({ type, repo, issue, slackIDType, slackID }) {
+  let assigneeText = "";
+  const shouldDisplayAvatar = true;
+
+  if (type === "issue") {
+    assigneeText =
+      slackIDType === "group"
+        ? `*Assignee:* <!subteam^${slackID}>`
+        : slackIDType === "user"
+        ? `*Assignee:* <@${slackID}>`
+        : "";
+
+    return {
+      text: `📈 New Issue in ${repo}: ${issue.title}`, // Fallback text for notifications
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: `📈 New Issue in ${repo}`,
+            emoji: true,
+          },
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*Title:*\n${issue.title}`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Labels:*\n${issue.labels
+                .map((label) => `\`${label}\``)
+                .join(", ")}`,
+            },
+            assigneeText
+              ? {
+                  type: "mrkdwn",
+                  text: assigneeText,
+                }
+              : null,
+          ].filter(Boolean),
+          accessory: shouldDisplayAvatar
+            ? {
+                type: "image",
+                image_url: issue.avatar_url, // Provide the avatar URL
+                alt_text: "Author's Avatar",
+              }
+            : null,
+        },
+        {
+          type: "context",
+          elements: [
+            {
+              type: "mrkdwn",
+              text: "*(Mark as acknowledged👍 after triaging)*",
+            },
+          ],
+        },
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "View Issue",
+              },
+              url: issue.url,
+              style: "primary",
+            },
+          ],
+        },
+      ],
+    };
+  } else if (type === "pr") {
+    assigneeText =
+      slackIDType === "group"
+        ? `*Reviewer:* <!subteam^${slackID}> `
+        : slackIDType === "user"
+        ? `*Reviewer:* <@${slackID}> `
+        : "";
+
+    return {
+      text: `🚀 New Pull Request in ${repo}: ${issue.title}`, // Fallback text for notifications
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: `🚀 New Pull Request in ${repo}`,
+            emoji: true,
+          },
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*Title:*\n${issue.title}`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Author:*\n${issue.author}`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Labels:*\n${issue.labels
+                .map((label) => `\`${label}\``)
+                .join(", ")}`,
+            },
+            assigneeText
+              ? {
+                  type: "mrkdwn",
+                  text: assigneeText,
+                }
+              : null,
+          ].filter(Boolean),
+          accessory: shouldDisplayAvatar
+            ? {
+                type: "image",
+                image_url: issue.avatar_url, // Provide the avatar URL
+                alt_text: "Author's Avatar",
+              }
+            : null,
+        },
+        {
+          type: "context",
+          elements: [
+            {
+              type: "mrkdwn",
+              text: "*(Review and acknowledge👍)*",
+            },
+          ],
+        },
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "View PR",
+              },
+              url: issue.url,
+              style: "primary",
+            },
+          ],
+        },
+      ],
+    };
+  }
+}
+
+const generateDiscordPayload = ({
+  type,
+  repo,
+  issue,
+  discordIDType,
+  discordID,
+}) => {
+  let content = "";
+  let message = "";
+
+  if (discordIDType === "user") {
+    content = `<@${discordID}>`;
+  } else if (discordIDType === "role") {
+    content = `<@&${discordID}>`;
+  }
+
+  if (type === "issue") {
+    message = {
+      content: content,
+      embeds: [
+        {
+          title: `📈 New Issue in ${repo}`,
+          description: `**Title:** ${issue.title}\n**Labels:** ${issue.labels
+            .map((label) => `\`${label}\``)
+            .join(", ")}\n\n[View Issue](${issue.url})`,
+          color: 15548997, // Optional: Embed color as a hex value
+          author: {
+            name: issue.author,
+            icon_url: issue.avatar_url,
+          },
+          footer: {
+            text: "Mark as acknowledged after triaging 👍",
+          },
+        },
+      ],
+    };
+  } else if (type === "pr") {
+    message = {
+      content: content,
+      embeds: [
+        {
+          title: `🚀 New Pull Request in ${repo}`,
+          description: `**Title:** ${issue.title}\n**Labels:** ${issue.labels
+            .map((label) => `\`${label}\``)
+            .join(", ")}\n\n[View PR](${issue.url})`,
+          color: 5763719, // Optional: Embed color as a hex value
+          author: {
+            name: issue.author,
+            icon_url: issue.avatar_url,
+          },
+          footer: {
+            text: "Review and acknowledge👍",
+          },
+        },
+      ],
+    };
+  }
+  return message;
+};
+
+module.exports = { generateSlackPayload, generateDiscordPayload };
+
 
 /***/ }),
 
@@ -39063,6 +39244,8 @@ async function run() {
 
     // Discord-specific inputs
     const discordWebhookUrl = core.getInput("discord_webhook_url");
+    const discordIDType = core.getInput("discord_id_type");
+    const discordID = core.getInput("discord_id");
 
     switch (task) {
       case "monitor-issues":
@@ -39072,7 +39255,7 @@ async function run() {
           repo,
           notifier,
           slackConfig: { slackToken, slackChannel, slackIDType, slackID },
-          discordConfig: { discordWebhookUrl },
+          discordConfig: { discordWebhookUrl, discordIDType, discordID },
           alertTime,
         });
         break;
@@ -39084,7 +39267,7 @@ async function run() {
           repo,
           notifier,
           slackConfig: { slackToken, slackChannel, slackIDType, slackID },
-          discordConfig: { discordWebhookUrl },
+          discordConfig: { discordWebhookUrl, discordIDType, discordID },
           alertTime,
         });
         break;

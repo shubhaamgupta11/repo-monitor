@@ -1,4 +1,4 @@
-# Monitor Issues & PRs with Slack/Discord Notifications
+# Monitor Issues & PRs with Slack+Discord Notifications
 
 Managing activity in open-source repositories can be challenging. With a constant influx of **issues** and **pull requests**, it's easy to lose track of what needs attention—especially when working with large teams or active projects. Missed notifications or delayed responses can lead to bottlenecks, reduced contributor satisfaction, and slower project progress.
 
@@ -8,8 +8,9 @@ This [GitHub Action](https://github.com/marketplace/actions/repo-activity-monito
 
 - Tracking new issues and pull requests.
 - Sending auto-generated notifications to **Slack** or **Discord**.
-- Customizing Slack notifications with the ability to ping specific users or groups.
-- Allowing Slack notifications to be sent to designated channels.
+- Customizing **Slack** notifications with the ability to ping specific users or groups.
+- Customizing **Discord** notifications with the ability to ping specific users or roles.
+- Allowing **Slack** notifications to be sent to designated channels.
 
 With **Repo Activity Monitor**, you can stay on top of your repositories activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
 
@@ -30,15 +31,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '22'
       - name: Monitor New Issues
-        uses: shubhaamgupta11/repo-monitor@v0.6.0
+        uses: shubhaamgupta11/repo-monitor@v1.0.0
         with:
           # required inputs
           task: "monitor-issues"
-          git_secret: "${{ secrets.GITHUB_TOKEN }}"
+          git_secret: "${{ secrets.GIT_SECRET }}"
           notifier: "slack"
           fetch_data_interval: 1  # Hours (must align with your cron schedule)
           # repo inputs
@@ -68,15 +69,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '22'
       - name: Monitor New PRs
-        uses: shubhaamgupta11/repo-monitor@v0.6.0
+        uses: shubhaamgupta11/repo-monitor@v1.0.0
         with:
           # required inputs
           task: "monitor-prs"
-          git_secret: "${{ secrets.GITHUB_TOKEN }}"
+          git_secret: "${{ secrets.GIT_SECRET }}"
           notifier: "discord"
           fetch_data_interval: 1  # Hours (must align with your cron schedule)
           # repo inputs
@@ -84,9 +85,37 @@ jobs:
           repo_name: "<repo>"
           # Discord-specific inputs
           discord_webhook_url: "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          discord_id_type: "<user/role>" # Optional: Only needed to ping someone directly.
+          discord_id: "<user-id/role-id>" # Optional: Only needed if discord_id_type is provided.
 ```
 
 > **Note:** You can configure any notifier (slack, discord) for any task (monitor-issues, monitor-prs, etc.). 
+
+## Message Previews
+Below are examples of how the notifications look on Slack and Discord.
+
+### Slack Notification Previews
+<details> <summary>Click to view Slack notifications</summary>
+
+For Issues
+
+<img src="./assets/slack-issue-notification.png" alt="Slack Issue Notification" width="400"/>
+
+For Pull Requests
+
+<img src="./assets/slack-pr-notification.png" alt="Slack PR Notification" width="400"/> </details>
+
+### Discord Notification Previews
+<details> <summary>Click to view Discord notifications</summary>
+
+For Issues
+
+<img src="./assets/discord-issue-notification.png" alt="Discord Issue Notification" width="400"/>
+
+For Pull Requests
+
+<img src="./assets/discord-pr-notification.png" alt="Discord PR Notification" width="400"/> </details>
+
 
 ## 🔧 Inputs
 
@@ -103,6 +132,8 @@ jobs:
 | slack_id_type | Type of Slack ID (user or group, required if notifier=`slack`). This is needed to ping someone directly. | No | None |
 | slack_id | user id or group id as per `slack_id_type` (required if notifier=`slack`). | No | None |
 | discord_webhook_url | Discord webhook URL to send notifications (required if notifier=`discord`). | No | None |
+| discord_id_type | Type of Discord ID (user or role, required if notifier=`discord`). This is needed to ping someone directly. | No | None |
+| discord_id | user id or role id as per `discord_id_type` (required if notifier=`discord`). | No | None |
 
 ## 📖 How It Works
 - The action listens for new issues or PRs in the specified GitHub repository.
@@ -119,15 +150,17 @@ jobs:
 - Retrieve the Channel ID and User/Group IDs.
 - Add these secrets to your GitHub repository:
   - `SLACK_BOT_TOKEN`
-  - `SLACK_CHANNEL`
-  - `SLACK_ID_TYPE`
-  - `SLACK_ID`
+- Provide the Slack Channel ID, Slack ID Type and Slack ID in the workflow.
 
 ### Discord
 
 - Create a [Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks).
 - Copy the Webhook URL.
 - Add the Webhook URL to your GitHub repository secrets as `DISCORD_WEBHOOK_URL`.
+- Retrieve the User/Role IDs.
+- Add these secrets to your GitHub repository:
+  - `DISCORD_WEBHOOK_URL`
+- Provide the Discord Webhook URL, Discord ID Type and Discord ID in the workflow.
 
 ## 🔮 Roadmap
 
@@ -139,3 +172,6 @@ jobs:
 ## 📜 License
 
 This project is licensed under the [MIT License](https://github.com/shubhaamgupta11/repo-monitor/blob/main/LICENSE).
+
+## Support & Feedback
+If you find this action helpful, please give the repository a ⭐️ on GitHub! Your support helps us grow and continue improving. Feel free to raise issues or suggest enhancements to make this even better.
