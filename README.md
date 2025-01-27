@@ -1,4 +1,4 @@
-# Monitor Issues & PRs with Slack/Discord Notifications
+# Monitor Issues & PRs with Slack+Discord Notifications
 
 Managing activity in open-source repositories can be challenging. With a constant influx of **issues** and **pull requests**, it's easy to lose track of what needs attention—especially when working with large teams or active projects. Missed notifications or delayed responses can lead to bottlenecks, reduced contributor satisfaction, and slower project progress.
 
@@ -8,9 +8,9 @@ This [GitHub Action](https://github.com/marketplace/actions/repo-activity-monito
 
 - Tracking new issues and pull requests.
 - Sending auto-generated notifications to **Slack** or **Discord**.
-- Customizing Slack notifications with the ability to ping specific users or groups.
-- Customizing Discord notifications with the ability to ping specific users or roles.
-- Allowing Slack notifications to be sent to designated channels.
+- Customizing **Slack** notifications with the ability to ping specific users or groups.
+- Customizing **Discord** notifications with the ability to ping specific users or roles.
+- Allowing **Slack** notifications to be sent to designated channels.
 
 With **Repo Activity Monitor**, you can stay on top of your repositories activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
 
@@ -91,6 +91,19 @@ jobs:
 
 > **Note:** You can configure any notifier (slack, discord) for any task (monitor-issues, monitor-prs, etc.). 
 
+## Message Previews
+Below are examples of how the notifications look on Slack and Discord. This can help you visualize how the action integrates with your workflow.
+
+### Notification Previews
+
+| Slack | Discord |
+|-------|---------|
+| **For Issues**  | **For Issues**  |
+| <img src="./assets/slack-issue-notification.png" alt="Slack Issue Notification" width="300"/> | <img src="./assets/discord-issue-notification.png" alt="Discord Issue Notification" width="300"/> |
+| **For Pull Requests** | **For Pull Requests** |
+| <img src="./assets/slack-pr-notification.png" alt="Slack PR Notification" width="300"/> | <img src="./assets/discord-pr-notification.png" alt="Discord PR Notification" width="300"/> |
+
+
 ## 🔧 Inputs
 
 | Input | Description | Required | Default |
@@ -146,3 +159,6 @@ jobs:
 ## 📜 License
 
 This project is licensed under the [MIT License](https://github.com/shubhaamgupta11/repo-monitor/blob/main/LICENSE).
+
+## Support & Feedback
+If you find this action helpful, please give the repository a ⭐️ on GitHub! Your support helps us grow and continue improving. Feel free to raise issues or suggest enhancements to make this even better.
