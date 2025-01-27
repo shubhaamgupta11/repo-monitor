@@ -98,18 +98,22 @@ Below are examples of how the notifications look on Slack and Discord.
 <details> <summary>Click to view Slack notifications</summary>
 
 For Issues
+
 <img src="./assets/slack-issue-notification.png" alt="Slack Issue Notification" width="400"/>
 
 For Pull Requests
+
 <img src="./assets/slack-pr-notification.png" alt="Slack PR Notification" width="400"/> </details>
 
 ### Discord Notification Previews
 <details> <summary>Click to view Discord notifications</summary>
 
 For Issues
+
 <img src="./assets/discord-issue-notification.png" alt="Discord Issue Notification" width="400"/>
 
 For Pull Requests
+
 <img src="./assets/discord-pr-notification.png" alt="Discord PR Notification" width="400"/> </details>
 
 
