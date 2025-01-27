@@ -92,16 +92,25 @@ jobs:
 > **Note:** You can configure any notifier (slack, discord) for any task (monitor-issues, monitor-prs, etc.). 
 
 ## Message Previews
-Below are examples of how the notifications look on Slack and Discord. This can help you visualize how the action integrates with your workflow.
+Below are examples of how the notifications look on Slack and Discord.
 
-### Notification Previews
+### Slack Notification Previews
+<details> <summary>Click to view Slack notifications</summary>
 
-| Slack | Discord |
-|-------|---------|
-| **For Issues**  | **For Issues**  |
-| <img src="./assets/slack-issue-notification.png" alt="Slack Issue Notification" width="300"/> | <img src="./assets/discord-issue-notification.png" alt="Discord Issue Notification" width="300"/> |
-| **For Pull Requests** | **For Pull Requests** |
-| <img src="./assets/slack-pr-notification.png" alt="Slack PR Notification" width="300"/> | <img src="./assets/discord-pr-notification.png" alt="Discord PR Notification" width="300"/> |
+For Issues
+<img src="./assets/slack-issue-notification.png" alt="Slack Issue Notification" width="400"/>
+
+For Pull Requests
+<img src="./assets/slack-pr-notification.png" alt="Slack PR Notification" width="400"/> </details>
+
+### Discord Notification Previews
+<details> <summary>Click to view Discord notifications</summary>
+
+For Issues
+<img src="./assets/discord-issue-notification.png" alt="Discord Issue Notification" width="400"/>
+
+For Pull Requests
+<img src="./assets/discord-pr-notification.png" alt="Discord PR Notification" width="400"/> </details>
 
 
 ## 🔧 Inputs
