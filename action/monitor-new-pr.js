@@ -108,12 +108,14 @@ async function monitorPRs({
   } else if (notifier === "discord") {
     const {
       discordWebhookUrl,
+      discordIDType,
+      discordID,
     } = discordConfig;
     console.log(
       "🔔 Sending notifications to Discord for PRs:",
       prs.map((pr) => pr.title)
     );
-    await sendDiscordNotification(discordWebhookUrl, prs, repo, "pr");
+    await sendDiscordNotification(discordWebhookUrl, prs, repo, "pr", discordIDType, discordID);
   } else {
     throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
   }

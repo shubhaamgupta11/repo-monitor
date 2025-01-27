@@ -1,6 +1,6 @@
 const { WebClient } = require("@slack/web-api");
 const delay = require("../utility/delay");
-const generateSlackPayload = require("../utility/generateSlackPayload");
+const { generateSlackPayload } = require("../utility/generatePayload");
 
 const slackWrapper = (token, channel) => {
   const client = new WebClient(token);

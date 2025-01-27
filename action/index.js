@@ -21,6 +21,8 @@ async function run() {
 
     // Discord-specific inputs
     const discordWebhookUrl = core.getInput("discord_webhook_url");
+    const discordIDType = core.getInput("discord_id_type");
+    const discordID = core.getInput("discord_id");
 
     switch (task) {
       case "monitor-issues":
@@ -30,7 +32,7 @@ async function run() {
           repo,
           notifier,
           slackConfig: { slackToken, slackChannel, slackIDType, slackID },
-          discordConfig: { discordWebhookUrl },
+          discordConfig: { discordWebhookUrl, discordIDType, discordID },
           alertTime,
         });
         break;
@@ -42,7 +44,7 @@ async function run() {
           repo,
           notifier,
           slackConfig: { slackToken, slackChannel, slackIDType, slackID },
-          discordConfig: { discordWebhookUrl },
+          discordConfig: { discordWebhookUrl, discordIDType, discordID },
           alertTime,
         });
         break;

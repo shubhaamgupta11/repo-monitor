@@ -9,6 +9,7 @@ This [GitHub Action](https://github.com/marketplace/actions/repo-activity-monito
 - Tracking new issues and pull requests.
 - Sending auto-generated notifications to **Slack** or **Discord**.
 - Customizing Slack notifications with the ability to ping specific users or groups.
+- Customizing Discord notifications with the ability to ping specific users or roles.
 - Allowing Slack notifications to be sent to designated channels.
 
 With **Repo Activity Monitor**, you can stay on top of your repositories activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
@@ -84,6 +85,8 @@ jobs:
           repo_name: "<repo>"
           # Discord-specific inputs
           discord_webhook_url: "${{ secrets.DISCORD_WEBHOOK_URL }}"
+          discord_id_type: "<user/role>" # Optional: Only needed to ping someone directly.
+          discord_id: "<user-id/role-id>" # Optional: Only needed if discord_id_type is provided.
 ```
 
 > **Note:** You can configure any notifier (slack, discord) for any task (monitor-issues, monitor-prs, etc.). 
@@ -103,6 +106,8 @@ jobs:
 | slack_id_type | Type of Slack ID (user or group, required if notifier=`slack`). This is needed to ping someone directly. | No | None |
 | slack_id | user id or group id as per `slack_id_type` (required if notifier=`slack`). | No | None |
 | discord_webhook_url | Discord webhook URL to send notifications (required if notifier=`discord`). | No | None |
+| discord_id_type | Type of Discord ID (user or role, required if notifier=`discord`). This is needed to ping someone directly. | No | None |
+| discord_id | user id or role id as per `discord_id_type` (required if notifier=`discord`). | No | None |
 
 ## 📖 How It Works
 - The action listens for new issues or PRs in the specified GitHub repository.
@@ -119,15 +124,17 @@ jobs:
 - Retrieve the Channel ID and User/Group IDs.
 - Add these secrets to your GitHub repository:
   - `SLACK_BOT_TOKEN`
-  - `SLACK_CHANNEL`
-  - `SLACK_ID_TYPE`
-  - `SLACK_ID`
+- Provide the Slack Channel ID, Slack ID Type and Slack ID in the workflow.
 
 ### Discord
 
 - Create a [Discord Webhook](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks).
 - Copy the Webhook URL.
 - Add the Webhook URL to your GitHub repository secrets as `DISCORD_WEBHOOK_URL`.
+- Retrieve the User/Role IDs.
+- Add these secrets to your GitHub repository:
+  - `DISCORD_WEBHOOK_URL`
+- Provide the Discord Webhook URL, Discord ID Type and Discord ID in the workflow.
 
 ## 🔮 Roadmap
 
