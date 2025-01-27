@@ -33,7 +33,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
       - name: Monitor New Issues
         uses: shubhaamgupta11/repo-monitor@v1.0.0
         with:
@@ -71,7 +71,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
       - name: Monitor New PRs
         uses: shubhaamgupta11/repo-monitor@v1.0.0
         with:
