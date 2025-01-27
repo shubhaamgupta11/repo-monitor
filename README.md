@@ -31,15 +31,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '22'
       - name: Monitor New Issues
-        uses: shubhaamgupta11/repo-monitor@v0.6.0
+        uses: shubhaamgupta11/repo-monitor@v1.0.0
         with:
           # required inputs
           task: "monitor-issues"
-          git_secret: "${{ secrets.GITHUB_TOKEN }}"
+          git_secret: "${{ secrets.GIT_SECRET }}"
           notifier: "slack"
           fetch_data_interval: 1  # Hours (must align with your cron schedule)
           # repo inputs
@@ -69,15 +69,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '22'
       - name: Monitor New PRs
-        uses: shubhaamgupta11/repo-monitor@v0.6.0
+        uses: shubhaamgupta11/repo-monitor@v1.0.0
         with:
           # required inputs
           task: "monitor-prs"
-          git_secret: "${{ secrets.GITHUB_TOKEN }}"
+          git_secret: "${{ secrets.GIT_SECRET }}"
           notifier: "discord"
           fetch_data_interval: 1  # Hours (must align with your cron schedule)
           # repo inputs

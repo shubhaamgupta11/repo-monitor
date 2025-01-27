@@ -50,7 +50,7 @@ inputs:
 
 
 runs:
-  using: node16
+  using: node22
   main: dist/index.js
 
 outputs:
