@@ -3,7 +3,7 @@ const delay = require("../utility/delay");
 const discordWrapper = (webhookUrl) => {
   const sendMessage = async (content) => {
     try {
-      await axios.post(webhookUrl, { content });
+      await axios.post(webhookUrl,  content );
     } catch (e) {
       console.error("Unable to send Discord message:", e.message);
     }
@@ -26,27 +26,39 @@ const sendDiscordNotification = async (webhookUrl, issues, repo, type) => {
     for (const issue of issues) {
         let message = '';
         if (type === 'issue') {
-            message = `
-            :chart_with_upwards_trend: **New Issue in ${repo}**  
-            *-* **Title:** ${issue.title}  
-            *-* **Labels:** ${issue.labels
-              .map((label) => `\`${label}\``)
-              .join(", ")}  
-            *-* **Link:** <${issue.url}>
-
-        Mark as acknowledged👍 after triaging
-        `;
+            message = {
+                embeds: [
+                  {
+                    title: `📈 New Issue in ${repo}`,
+                    description: `**Title:** ${issue.title}\n**Labels:** ${issue.labels.map((label) => `\`${label}\``).join(", ")}\n\n[View Issue](${issue.url})`,
+                    color: 15548997, // Optional: Embed color as a hex value
+                    author: {
+                        name: issue.author,
+                        icon_url: issue.avatar_url,
+                    },
+                    footer: {
+                      text: "Mark as acknowledged after triaging 👍"
+                    }
+                  }
+                ]
+              };
         } else if (type === 'pr') {
-            message = `
-            :sparkles: **New Pull Request in ${repo}**  
-            *-* **Title:** ${issue.title}  
-            *-* **Author:** ${issue.author}
-            *-* **Labels:** ${issue.labels
-              .map((label) => `\`${label}\``)
-              .join(", ")}  
-            *-* **Link:** <${issue.url}>
-        Review and acknowledge👍
-        `;
+            message = {
+                embeds: [
+                  {
+                    title: `🚀 New Pull Request in ${repo}`,
+                    description: `**Title:** ${issue.title}\n**Labels:** ${issue.labels.map((label) => `\`${label}\``).join(", ")}\n\n[View PR](${issue.url})`,
+                    color: 5763719, // Optional: Embed color as a hex value
+                    author: {
+                        name: issue.author,
+                        icon_url: issue.avatar_url,
+                    },
+                    footer: {
+                      text: "Review and acknowledge👍"
+                    }
+                  }
+                ]
+              };
         }
   
       try {
@@ -56,7 +68,7 @@ const sendDiscordNotification = async (webhookUrl, issues, repo, type) => {
         console.error(`Failed to post issue "${issue.title}" to Discord:`, error.message);
       }
   
-      console.log("Waiting for 30 seconds before sending the next message...");
+      // Introduce a delay between messages to avoid rate limiting
       await delay(5 * 1000);
     }
   

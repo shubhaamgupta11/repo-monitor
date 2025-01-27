@@ -45,6 +45,7 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
       newPRs.push(
         ...recentPRs.map((pr) => ({
           author: pr.user.login,
+          avatar_url: pr.user.avatar_url,
           title: pr.title,
           url: pr.html_url,
           createdAt: pr.created_at,

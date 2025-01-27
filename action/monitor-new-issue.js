@@ -46,6 +46,8 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
         ...issues.map((issue) => ({
           title: issue.title,
           url: issue.html_url,
+          avatar_url: issue.user.avatar_url,
+          author: issue.user.login,
           createdAt: issue.created_at,
           labels: issue.labels.map((label) => label.name),
           comments: issue.comments,
