@@ -8,8 +8,8 @@ This [GitHub Action](https://github.com/marketplace/actions/repo-activity-monito
 
 - Tracking new issues and pull requests.
 - Sending auto-generated notifications to **Slack** or **Discord**.
-- Customizing **Slack** notifications with the ability to multiple users or groups.
-- Customizing **Discord** notifications with the ability to multiple users or roles.
+- Customizing **Slack** notifications with the ability to ping multiple users or groups.
+- Customizing **Discord** notifications with the ability to ping multiple users or roles.
 - Allowing **Slack** notifications to be sent to designated channels.
 
 With **Repo Activity Monitor**, you can stay on top of your repositories activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
