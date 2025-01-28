@@ -29,7 +29,7 @@ const sendSlackNotification = async (
   slackToken,
   slackChannel,
   slackIDType,
-  slackID,
+  slackIDs,
   issues,
   repo,
   type
@@ -47,7 +47,7 @@ const sendSlackNotification = async (
       repo,
       issue,
       slackIDType,
-      slackID,
+      slackIDs,
     });
 
     try {

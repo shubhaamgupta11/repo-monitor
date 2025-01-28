@@ -17,12 +17,12 @@ async function run() {
     const slackToken = core.getInput("slack_bot_token");
     const slackChannel = core.getInput("slack_channel");
     const slackIDType = core.getInput("slack_id_type");
-    const slackID = core.getInput("slack_id");
+    const slackIDs = core.getInput("slack_ids");
 
     // Discord-specific inputs
     const discordWebhookUrl = core.getInput("discord_webhook_url");
     const discordIDType = core.getInput("discord_id_type");
-    const discordID = core.getInput("discord_id");
+    const discordIDs = core.getInput("discord_ids");
 
     switch (task) {
       case "monitor-issues":
@@ -31,8 +31,8 @@ async function run() {
           owner,
           repo,
           notifier,
-          slackConfig: { slackToken, slackChannel, slackIDType, slackID },
-          discordConfig: { discordWebhookUrl, discordIDType, discordID },
+          slackConfig: { slackToken, slackChannel, slackIDType, slackIDs },
+          discordConfig: { discordWebhookUrl, discordIDType, discordIDs },
           alertTime,
         });
         break;
@@ -43,8 +43,8 @@ async function run() {
           owner,
           repo,
           notifier,
-          slackConfig: { slackToken, slackChannel, slackIDType, slackID },
-          discordConfig: { discordWebhookUrl, discordIDType, discordID },
+          slackConfig: { slackToken, slackChannel, slackIDType, slackIDs },
+          discordConfig: { discordWebhookUrl, discordIDType, discordIDs },
           alertTime,
         });
         break;

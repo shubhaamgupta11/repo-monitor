@@ -1,14 +1,42 @@
-function generateSlackPayload({ type, repo, issue, slackIDType, slackID }) {
+const generateSlackContent = (slackIDType, slackIDs) => {
+  let content = "";
+  let isAssignee = false;
+  if (slackIDType === "user") {
+    if (slackIDs) {
+      const slackIDsArray = slackIDs.split(",");
+      slackIDsArray.forEach(id => {
+        if (id.trim() !== "") {
+          isAssignee = true;
+          content += `<@${id.trim()}> `;
+        }
+      });
+      if (isAssignee) {
+        content = `*Assignee:* ` + content;
+      }
+    }
+  } else if (slackIDType === "group") {
+    if (slackIDs) {
+      const slackIDsArray = slackIDs.split(",");
+      slackIDsArray.forEach(id => {
+        if (id.trim() !== "") {
+          isAssignee = true;
+          content += `<!subteam^${id.trim()}> `;
+        }
+      });
+      if (isAssignee) {
+        content = `*Assignee:* ` + content;
+      }
+    }
+  }
+  return content;
+}
+
+function generateSlackPayload({ type, repo, issue, slackIDType, slackIDs }) {
   let assigneeText = "";
   const shouldDisplayAvatar = true;
 
   if (type === "issue") {
-    assigneeText =
-      slackIDType === "group"
-        ? `*Assignee:* <!subteam^${slackID}>`
-        : slackIDType === "user"
-        ? `*Assignee:* <@${slackID}>`
-        : "";
+    assigneeText = generateSlackContent(slackIDType, slackIDs);
 
     return {
       text: `📈 New Issue in ${repo}: ${issue.title}`, // Fallback text for notifications
@@ -75,12 +103,7 @@ function generateSlackPayload({ type, repo, issue, slackIDType, slackID }) {
       ],
     };
   } else if (type === "pr") {
-    assigneeText =
-      slackIDType === "group"
-        ? `*Reviewer:* <!subteam^${slackID}> `
-        : slackIDType === "user"
-        ? `*Reviewer:* <@${slackID}> `
-        : "";
+    assigneeText = generateSlackContent(slackIDType, slackIDs);
 
     return {
       text: `🚀 New Pull Request in ${repo}: ${issue.title}`, // Fallback text for notifications
@@ -153,21 +176,40 @@ function generateSlackPayload({ type, repo, issue, slackIDType, slackID }) {
   }
 }
 
+const generateDiscordContent = (discordIDType, discordIDs) => {
+  let content = "";
+  if (discordIDType === "user") {
+    if (discordIDs) { 
+      const discordIDsArray = discordIDs.split(",");
+      discordIDsArray.forEach(id => {
+        if (id.trim() !== "") {
+          content += `<@${id.trim()}> `;
+        }
+      });
+    }
+  } else if (discordIDType === "role") {
+    if (discordIDs) {
+      const discordIDsArray = discordIDs.split(",");
+      discordIDsArray.forEach(id => {
+        if (id.trim() !== "") {
+          content += `<@&${id.trim()}> `;
+        }
+      });
+    }
+  }
+  return content;
+}
+
+
 const generateDiscordPayload = ({
   type,
   repo,
   issue,
   discordIDType,
-  discordID,
+  discordIDs,
 }) => {
-  let content = "";
+  let content = generateDiscordContent(discordIDType, discordIDs);
   let message = "";
-
-  if (discordIDType === "user") {
-    content = `<@${discordID}>`;
-  } else if (discordIDType === "role") {
-    content = `<@&${discordID}>`;
-  }
 
   if (type === "issue") {
     message = {

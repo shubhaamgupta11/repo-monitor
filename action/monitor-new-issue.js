@@ -88,7 +88,7 @@ async function monitorIssues({
       slackToken,
       slackChannel,
       slackIDType,
-      slackID,
+      slackIDs,
     } = slackConfig;
     console.log(
       "🔔 Sending notifications to Slack for issues:",
@@ -98,7 +98,7 @@ async function monitorIssues({
       slackToken,
       slackChannel,
       slackIDType,
-      slackID,
+      slackIDs,
       issues,
       repo,
       "issue"
@@ -107,13 +107,13 @@ async function monitorIssues({
     const {
       discordWebhookUrl,
       discordIDType,
-      discordID,
+      discordIDs,
     } = discordConfig;
     console.log(
       "🔔 Sending notifications to Discord for issues:",
       issues.map((issue) => issue.title)
     );
-    await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue", discordIDType, discordID);
+    await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue", discordIDType, discordIDs);
   } else {
     throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
   }

@@ -34,8 +34,8 @@ inputs:
   slack_id_type:
     description: Type of Slack ID (user or group).
     required: false
-  slack_id:
-    description: Slack ID of the recipient (user or group).
+  slack_ids:
+    description: Slack IDs of the recipients (user or group) must be comma separated and all must be of same type.
     required: false
   # Discord-specific inputs
   discord_webhook_url:
@@ -44,8 +44,8 @@ inputs:
   discord_id_type:
     description: Type of Discord ID (user or role).
     required: false
-  discord_id:
-    description: Discord ID of the recipient (user or role).
+  discord_ids:
+    description: Discord IDs of the recipients (user or role) must be comma separated and all must be of same type.
     required: false
 
 
