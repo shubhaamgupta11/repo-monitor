@@ -8,8 +8,8 @@ This [GitHub Action](https://github.com/marketplace/actions/repo-activity-monito
 
 - Tracking new issues and pull requests.
 - Sending auto-generated notifications to **Slack** or **Discord**.
-- Customizing **Slack** notifications with the ability to multiple users or groups.
-- Customizing **Discord** notifications with the ability to multiple users or roles.
+- Customizing **Slack** notifications with the ability to ping multiple users or groups.
+- Customizing **Discord** notifications with the ability to ping multiple users or roles.
 - Allowing **Slack** notifications to be sent to designated channels.
 
 With **Repo Activity Monitor**, you can stay on top of your repositories activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
@@ -35,7 +35,7 @@ jobs:
         with:
           node-version: '20'
       - name: Monitor New Issues
-        uses: shubhaamgupta11/repo-monitor@v1.0.0
+        uses: shubhaamgupta11/repo-monitor@v1.0.1
         with:
           # required inputs
           task: "monitor-issues"
@@ -52,7 +52,7 @@ jobs:
           slack_ids: "<user-id/group-id>" # Optional: Only needed if slack_id_type is provided. Can pass multiple similar type ids separated by commas. e.g. "Uyyyxxxx,Uzzzxxxx"
 ```
 
-> **Note:** slack_id_type and slack_id are only needed if you want to ping someone directly.
+> **Note:** slack_id_type and slack_ids are only needed if you want to ping someone directly.
 
 ### Monitoring PRs with Discord
 
@@ -73,7 +73,7 @@ jobs:
         with:
           node-version: '20'
       - name: Monitor New PRs
-        uses: shubhaamgupta11/repo-monitor@v1.0.0
+        uses: shubhaamgupta11/repo-monitor@v1.0.1
         with:
           # required inputs
           task: "monitor-prs"
