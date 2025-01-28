@@ -20,6 +20,7 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
 
   let newPRs = [];
   let page = 1;
+  let olderThanCutoff = false;
 
   try {
     while (true) {
@@ -32,10 +33,12 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
           page, // Current page of the results
         },
       });
-
       const recentPRs = response.data.filter((pr) => {
         const createdAt = new Date(pr.created_at);
         // Exclude PRs created by dependabot and older than the cutoff date
+        if (createdAt < new Date(cutoffDate)) {
+            olderThanCutoff = true;
+        }
         return (
           pr.user?.login !== "dependabot[bot]" &&
           createdAt >= new Date(cutoffDate)
@@ -52,6 +55,8 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
           labels: pr.labels.map((label) => label.name),
         }))
       );
+
+      if (olderThanCutoff) break;
 
       const hasNextPage = response.headers["link"]?.includes('rel="next"');
       if (!hasNextPage) break;
@@ -90,7 +95,7 @@ async function monitorPRs({
       slackToken,
       slackChannel,
       slackIDType,
-      slackID,
+      slackIDs,
     } = slackConfig;
     console.log(
       "🔔 Sending notifications to Slack for PRs:",
@@ -100,7 +105,7 @@ async function monitorPRs({
       slackToken,
       slackChannel,
       slackIDType,
-      slackID,
+      slackIDs,
       prs,
       repo,
       "pr"
@@ -109,13 +114,14 @@ async function monitorPRs({
     const {
       discordWebhookUrl,
       discordIDType,
-      discordID,
+      discordIDs,
     } = discordConfig;
+
     console.log(
       "🔔 Sending notifications to Discord for PRs:",
       prs.map((pr) => pr.title)
     );
-    await sendDiscordNotification(discordWebhookUrl, prs, repo, "pr", discordIDType, discordID);
+    await sendDiscordNotification(discordWebhookUrl, prs, repo, "pr", discordIDType, discordIDs);
   } else {
     throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
   }

@@ -17,7 +17,7 @@ const discordWrapper = (webhookUrl) => {
 };
 
 // Send Discord Notifications
-const sendDiscordNotification = async (webhookUrl, issues, repo, type, discordIDType, discordID) => {
+const sendDiscordNotification = async (webhookUrl, issues, repo, type, discordIDType, discordIDs) => {
     if (!issues.length) {
       console.log("No issues found within the specified time frame.");
       return;
@@ -27,7 +27,7 @@ const sendDiscordNotification = async (webhookUrl, issues, repo, type, discordID
 
 
     for (const issue of issues) {
-      let payload = generateDiscordPayload({type, repo, issue, discordIDType, discordID});
+      let payload = generateDiscordPayload({type, repo, issue, discordIDType, discordIDs});
   
       try {
         await discord.sendMessage(payload);

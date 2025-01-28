@@ -23,7 +23,7 @@ const discordWrapper = (webhookUrl) => {
 };
 
 // Send Discord Notifications
-const sendDiscordNotification = async (webhookUrl, issues, repo, type, discordIDType, discordID) => {
+const sendDiscordNotification = async (webhookUrl, issues, repo, type, discordIDType, discordIDs) => {
     if (!issues.length) {
       console.log("No issues found within the specified time frame.");
       return;
@@ -33,7 +33,7 @@ const sendDiscordNotification = async (webhookUrl, issues, repo, type, discordID
 
 
     for (const issue of issues) {
-      let payload = generateDiscordPayload({type, repo, issue, discordIDType, discordID});
+      let payload = generateDiscordPayload({type, repo, issue, discordIDType, discordIDs});
   
       try {
         await discord.sendMessage(payload);
@@ -88,7 +88,7 @@ const sendSlackNotification = async (
   slackToken,
   slackChannel,
   slackIDType,
-  slackID,
+  slackIDs,
   issues,
   repo,
   type
@@ -106,7 +106,7 @@ const sendSlackNotification = async (
       repo,
       issue,
       slackIDType,
-      slackID,
+      slackIDs,
     });
 
     try {
@@ -224,7 +224,7 @@ async function monitorIssues({
       slackToken,
       slackChannel,
       slackIDType,
-      slackID,
+      slackIDs,
     } = slackConfig;
     console.log(
       "🔔 Sending notifications to Slack for issues:",
@@ -234,7 +234,7 @@ async function monitorIssues({
       slackToken,
       slackChannel,
       slackIDType,
-      slackID,
+      slackIDs,
       issues,
       repo,
       "issue"
@@ -243,13 +243,13 @@ async function monitorIssues({
     const {
       discordWebhookUrl,
       discordIDType,
-      discordID,
+      discordIDs,
     } = discordConfig;
     console.log(
       "🔔 Sending notifications to Discord for issues:",
       issues.map((issue) => issue.title)
     );
-    await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue", discordIDType, discordID);
+    await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue", discordIDType, discordIDs);
   } else {
     throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
   }
@@ -284,6 +284,7 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
 
   let newPRs = [];
   let page = 1;
+  let olderThanCutoff = false;
 
   try {
     while (true) {
@@ -296,10 +297,12 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
           page, // Current page of the results
         },
       });
-
       const recentPRs = response.data.filter((pr) => {
         const createdAt = new Date(pr.created_at);
         // Exclude PRs created by dependabot and older than the cutoff date
+        if (createdAt < new Date(cutoffDate)) {
+            olderThanCutoff = true;
+        }
         return (
           pr.user?.login !== "dependabot[bot]" &&
           createdAt >= new Date(cutoffDate)
@@ -316,6 +319,8 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
           labels: pr.labels.map((label) => label.name),
         }))
       );
+
+      if (olderThanCutoff) break;
 
       const hasNextPage = response.headers["link"]?.includes('rel="next"');
       if (!hasNextPage) break;
@@ -354,7 +359,7 @@ async function monitorPRs({
       slackToken,
       slackChannel,
       slackIDType,
-      slackID,
+      slackIDs,
     } = slackConfig;
     console.log(
       "🔔 Sending notifications to Slack for PRs:",
@@ -364,7 +369,7 @@ async function monitorPRs({
       slackToken,
       slackChannel,
       slackIDType,
-      slackID,
+      slackIDs,
       prs,
       repo,
       "pr"
@@ -373,13 +378,14 @@ async function monitorPRs({
     const {
       discordWebhookUrl,
       discordIDType,
-      discordID,
+      discordIDs,
     } = discordConfig;
+
     console.log(
       "🔔 Sending notifications to Discord for PRs:",
       prs.map((pr) => pr.title)
     );
-    await sendDiscordNotification(discordWebhookUrl, prs, repo, "pr", discordIDType, discordID);
+    await sendDiscordNotification(discordWebhookUrl, prs, repo, "pr", discordIDType, discordIDs);
   } else {
     throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
   }
@@ -400,17 +406,45 @@ module.exports = delay;
 /***/ 1458:
 /***/ ((module) => {
 
-function generateSlackPayload({ type, repo, issue, slackIDType, slackID }) {
+const generateSlackContent = (slackIDType, slackIDs) => {
+  let content = "";
+  let isAssignee = false;
+  if (slackIDType === "user") {
+    if (slackIDs) {
+      const slackIDsArray = slackIDs.split(",");
+      slackIDsArray.forEach(id => {
+        if (id.trim() !== "") {
+          isAssignee = true;
+          content += `<@${id.trim()}> `;
+        }
+      });
+      if (isAssignee) {
+        content = `*Assignee:* ` + content;
+      }
+    }
+  } else if (slackIDType === "group") {
+    if (slackIDs) {
+      const slackIDsArray = slackIDs.split(",");
+      slackIDsArray.forEach(id => {
+        if (id.trim() !== "") {
+          isAssignee = true;
+          content += `<!subteam^${id.trim()}> `;
+        }
+      });
+      if (isAssignee) {
+        content = `*Assignee:* ` + content;
+      }
+    }
+  }
+  return content;
+}
+
+function generateSlackPayload({ type, repo, issue, slackIDType, slackIDs }) {
   let assigneeText = "";
   const shouldDisplayAvatar = true;
 
   if (type === "issue") {
-    assigneeText =
-      slackIDType === "group"
-        ? `*Assignee:* <!subteam^${slackID}>`
-        : slackIDType === "user"
-        ? `*Assignee:* <@${slackID}>`
-        : "";
+    assigneeText = generateSlackContent(slackIDType, slackIDs);
 
     return {
       text: `📈 New Issue in ${repo}: ${issue.title}`, // Fallback text for notifications
@@ -477,12 +511,7 @@ function generateSlackPayload({ type, repo, issue, slackIDType, slackID }) {
       ],
     };
   } else if (type === "pr") {
-    assigneeText =
-      slackIDType === "group"
-        ? `*Reviewer:* <!subteam^${slackID}> `
-        : slackIDType === "user"
-        ? `*Reviewer:* <@${slackID}> `
-        : "";
+    assigneeText = generateSlackContent(slackIDType, slackIDs);
 
     return {
       text: `🚀 New Pull Request in ${repo}: ${issue.title}`, // Fallback text for notifications
@@ -555,21 +584,40 @@ function generateSlackPayload({ type, repo, issue, slackIDType, slackID }) {
   }
 }
 
+const generateDiscordContent = (discordIDType, discordIDs) => {
+  let content = "";
+  if (discordIDType === "user") {
+    if (discordIDs) { 
+      const discordIDsArray = discordIDs.split(",");
+      discordIDsArray.forEach(id => {
+        if (id.trim() !== "") {
+          content += `<@${id.trim()}> `;
+        }
+      });
+    }
+  } else if (discordIDType === "role") {
+    if (discordIDs) {
+      const discordIDsArray = discordIDs.split(",");
+      discordIDsArray.forEach(id => {
+        if (id.trim() !== "") {
+          content += `<@&${id.trim()}> `;
+        }
+      });
+    }
+  }
+  return content;
+}
+
+
 const generateDiscordPayload = ({
   type,
   repo,
   issue,
   discordIDType,
-  discordID,
+  discordIDs,
 }) => {
-  let content = "";
+  let content = generateDiscordContent(discordIDType, discordIDs);
   let message = "";
-
-  if (discordIDType === "user") {
-    content = `<@${discordID}>`;
-  } else if (discordIDType === "role") {
-    content = `<@&${discordID}>`;
-  }
 
   if (type === "issue") {
     message = {
@@ -39240,12 +39288,12 @@ async function run() {
     const slackToken = core.getInput("slack_bot_token");
     const slackChannel = core.getInput("slack_channel");
     const slackIDType = core.getInput("slack_id_type");
-    const slackID = core.getInput("slack_id");
+    const slackIDs = core.getInput("slack_ids");
 
     // Discord-specific inputs
     const discordWebhookUrl = core.getInput("discord_webhook_url");
     const discordIDType = core.getInput("discord_id_type");
-    const discordID = core.getInput("discord_id");
+    const discordIDs = core.getInput("discord_ids");
 
     switch (task) {
       case "monitor-issues":
@@ -39254,8 +39302,8 @@ async function run() {
           owner,
           repo,
           notifier,
-          slackConfig: { slackToken, slackChannel, slackIDType, slackID },
-          discordConfig: { discordWebhookUrl, discordIDType, discordID },
+          slackConfig: { slackToken, slackChannel, slackIDType, slackIDs },
+          discordConfig: { discordWebhookUrl, discordIDType, discordIDs },
           alertTime,
         });
         break;
@@ -39266,8 +39314,8 @@ async function run() {
           owner,
           repo,
           notifier,
-          slackConfig: { slackToken, slackChannel, slackIDType, slackID },
-          discordConfig: { discordWebhookUrl, discordIDType, discordID },
+          slackConfig: { slackToken, slackChannel, slackIDType, slackIDs },
+          discordConfig: { discordWebhookUrl, discordIDType, discordIDs },
           alertTime,
         });
         break;

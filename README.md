@@ -8,8 +8,8 @@ This [GitHub Action](https://github.com/marketplace/actions/repo-activity-monito
 
 - Tracking new issues and pull requests.
 - Sending auto-generated notifications to **Slack** or **Discord**.
-- Customizing **Slack** notifications with the ability to ping specific users or groups.
-- Customizing **Discord** notifications with the ability to ping specific users or roles.
+- Customizing **Slack** notifications with the ability to multiple users or groups.
+- Customizing **Discord** notifications with the ability to multiple users or roles.
 - Allowing **Slack** notifications to be sent to designated channels.
 
 With **Repo Activity Monitor**, you can stay on top of your repositories activities, streamline communication, and ensure no critical issues or pull requests fall through the cracks.
@@ -49,7 +49,7 @@ jobs:
           slack_bot_token: "${{ secrets.SLACK_BOT_TOKEN }}"
           slack_channel: "<channel-id>"
           slack_id_type: "<user/group>" # Optional: Only needed to ping someone directly.
-          slack_id: "<user-id/group-id>" # Optional: Only needed if slack_id_type is provided.
+          slack_ids: "<user-id/group-id>" # Optional: Only needed if slack_id_type is provided. Can pass multiple similar type ids separated by commas. e.g. "Uyyyxxxx,Uzzzxxxx"
 ```
 
 > **Note:** slack_id_type and slack_id are only needed if you want to ping someone directly.
@@ -86,7 +86,7 @@ jobs:
           # Discord-specific inputs
           discord_webhook_url: "${{ secrets.DISCORD_WEBHOOK_URL }}"
           discord_id_type: "<user/role>" # Optional: Only needed to ping someone directly.
-          discord_id: "<user-id/role-id>" # Optional: Only needed if discord_id_type is provided.
+          discord_ids: "<user-id/role-id>" # Optional: Only needed if discord_id_type is provided. Can pass multiple similar type ids separated by commas. e.g. "Uyyyxxxx,Uzzzxxxx"
 ```
 
 > **Note:** You can configure any notifier (slack, discord) for any task (monitor-issues, monitor-prs, etc.). 
@@ -130,10 +130,10 @@ For Pull Requests
 | slack_bot_token | Slack bot token to send notifications (required if notifier=`slack`). | No | None |
 | slack_channel | The Slack channel id to send notifications to (required if notifier=`slack`). | No | None |
 | slack_id_type | Type of Slack ID (user or group, required if notifier=`slack`). This is needed to ping someone directly. | No | None |
-| slack_id | user id or group id as per `slack_id_type` (required if notifier=`slack`). | No | None |
+| slack_ids | user id or group id as per `slack_id_type` (required if notifier=`slack`). Can pass multiple similar type ids separated by commas. e.g. "Uyyyxxxx,Uzzzxxxx" | No | None |
 | discord_webhook_url | Discord webhook URL to send notifications (required if notifier=`discord`). | No | None |
 | discord_id_type | Type of Discord ID (user or role, required if notifier=`discord`). This is needed to ping someone directly. | No | None |
-| discord_id | user id or role id as per `discord_id_type` (required if notifier=`discord`). | No | None |
+| discord_ids | user id or role id as per `discord_id_type` (required if notifier=`discord`). Can pass multiple similar type ids separated by commas. e.g. "Uyyyxxxx,Uzzzxxxx" | No | None |
 
 ## 📖 How It Works
 - The action listens for new issues or PRs in the specified GitHub repository.
@@ -145,7 +145,7 @@ For Pull Requests
 
 ### Slack
 
-- Create a [Slack App](https://api.slack.com/bot-users#creating-bot-user).
+- Create a [Slack App](https://api.slack.com/quickstart).
 - Generate a Slack Bot Token.
 - Retrieve the Channel ID and User/Group IDs.
 - Add these secrets to your GitHub repository:
