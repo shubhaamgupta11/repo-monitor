@@ -52,7 +52,7 @@ jobs:
           slack_ids: "<user-id/group-id>" # Optional: Only needed if slack_id_type is provided. Can pass multiple similar type ids separated by commas. e.g. "Uyyyxxxx,Uzzzxxxx"
 ```
 
-> **Note:** slack_id_type and slack_id are only needed if you want to ping someone directly.
+> **Note:** slack_id_type and slack_ids are only needed if you want to ping someone directly.
 
 ### Monitoring PRs with Discord
 
