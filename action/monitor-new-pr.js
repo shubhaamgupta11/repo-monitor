@@ -101,6 +101,12 @@ async function monitorPRs({
       "🔔 Sending notifications to Slack for PRs:",
       prs.map((pr) => pr.title)
     );
+    
+    if (!slackToken) {
+      console.log("No Slack token provided. Skipping notification.");
+      return;
+    }
+
     await sendSlackNotification(
       slackToken,
       slackChannel,
@@ -117,13 +123,18 @@ async function monitorPRs({
       discordIDs,
     } = discordConfig;
 
+    if (!discordWebhookUrl) {
+      console.log("No Discord webhook URL provided. Skipping notification.");
+      return;
+    }
+
     console.log(
       "🔔 Sending notifications to Discord for PRs:",
       prs.map((pr) => pr.title)
     );
     await sendDiscordNotification(discordWebhookUrl, prs, repo, "pr", discordIDType, discordIDs);
   } else {
-    throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
+    console.log("No notifier selected. Skipping notification.");
   }
 }
 
