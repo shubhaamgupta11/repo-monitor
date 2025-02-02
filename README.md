@@ -35,7 +35,7 @@ jobs:
         with:
           node-version: '20'
       - name: Monitor New Issues
-        uses: shubhaamgupta11/repo-monitor@v1.0.1
+        uses: shubhaamgupta11/repo-monitor@v1.0.2
         with:
           # required inputs
           task: "monitor-issues"
@@ -73,7 +73,7 @@ jobs:
         with:
           node-version: '20'
       - name: Monitor New PRs
-        uses: shubhaamgupta11/repo-monitor@v1.0.1
+        uses: shubhaamgupta11/repo-monitor@v1.0.2
         with:
           # required inputs
           task: "monitor-prs"

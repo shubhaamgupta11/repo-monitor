@@ -90,6 +90,12 @@ async function monitorIssues({
       slackIDType,
       slackIDs,
     } = slackConfig;
+
+    if (!slackToken) {
+      console.log("No Slack token provided. Skipping notification.");
+      return;
+    }
+
     console.log(
       "🔔 Sending notifications to Slack for issues:",
       issues.map((issue) => issue.title)
@@ -109,13 +115,19 @@ async function monitorIssues({
       discordIDType,
       discordIDs,
     } = discordConfig;
+
+    if (!discordWebhookUrl) {
+      console.log("No Discord webhook URL provided. Skipping notification.");
+      return;
+    }
+
     console.log(
       "🔔 Sending notifications to Discord for issues:",
       issues.map((issue) => issue.title)
     );
     await sendDiscordNotification(discordWebhookUrl, issues, repo, "issue", discordIDType, discordIDs);
   } else {
-    throw new Error("Unsupported notifier. Use 'slack' or 'discord'.");
+    console.log("No notifier selected. Skipping notification.");
   }
 }
 

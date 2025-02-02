@@ -24,6 +24,12 @@ async function run() {
     const discordIDType = core.getInput("discord_id_type");
     const discordIDs = core.getInput("discord_ids");
 
+        // Check if git_secret is provided
+    if (!gitToken) {
+      core.setFailed("Error: 'git_secret' is a mandatory input. Please provide a valid GitHub token.");
+      return;
+    }
+
     switch (task) {
       case "monitor-issues":
         await monitorIssues({
