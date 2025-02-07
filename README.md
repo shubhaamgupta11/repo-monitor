@@ -2,6 +2,8 @@
 
 Managing activity in open-source repositories can be challenging. With a constant influx of **issues** and **pull requests**, it's easy to lose track of what needs attention—especially when working with large teams or active projects. Missed notifications or delayed responses can lead to bottlenecks, reduced contributor satisfaction, and slower project progress.
 
+> *A fork of this action is used in the [React Native](https://github.com/facebook/react-native/blob/main/.github/workflows/monitor-new-issues.yml) repository to monitor new issues. Check out the forked repo [react-native-community/repo-monitor](https://github.com/react-native-community/repo-monitor).*
+
 ## Repo Activity Monitor
 
 This [GitHub Action](https://github.com/marketplace/actions/repo-activity-monitor) empowers open-source maintainers by:
