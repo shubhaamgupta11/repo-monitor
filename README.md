@@ -1,5 +1,7 @@
 # Monitor Issues & PRs with Slack+Discord Notifications
 
+*A fork of this action is used in the [React Native](https://github.com/facebook/react-native/blob/main/.github/workflows/monitor-new-issues.yml) repository to streamline new issues. Check out the forked repo [react-native-community/repo-monitor](https://github.com/react-native-community/repo-monitor).*
+
 Managing activity in open-source repositories can be challenging. With a constant influx of **issues** and **pull requests**, it's easy to lose track of what needs attention—especially when working with large teams or active projects. Missed notifications or delayed responses can lead to bottlenecks, reduced contributor satisfaction, and slower project progress.
 
 > *A fork of this action is used in the [React Native](https://github.com/facebook/react-native/blob/main/.github/workflows/monitor-new-issues.yml) repository to monitor new issues. Check out the forked repo [react-native-community/repo-monitor](https://github.com/react-native-community/repo-monitor).*
@@ -37,7 +39,7 @@ jobs:
         with:
           node-version: '20'
       - name: Monitor New Issues
-        uses: shubhaamgupta11/repo-monitor@v1.0.2
+        uses: shubhaamgupta11/repo-monitor@v1.0.4
         with:
           # required inputs
           task: "monitor-issues"
@@ -75,7 +77,7 @@ jobs:
         with:
           node-version: '20'
       - name: Monitor New PRs
-        uses: shubhaamgupta11/repo-monitor@v1.0.2
+        uses: shubhaamgupta11/repo-monitor@v1.0.4
         with:
           # required inputs
           task: "monitor-prs"

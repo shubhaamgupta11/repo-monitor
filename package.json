@@ -1,6 +1,6 @@
 {
   "name": "repo-monitor",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A GitHub Action to monitor a repository for new issues and PRs and send notifications to different channels.",
   "main": "index.js",
   "scripts": {

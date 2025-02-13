@@ -154,6 +154,8 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
     new Date().getTime() - alertTime * 60 * 60 * 1000
   ).toISOString();
 
+  console.log(`🕒 Script executed at: ${new Date().toLocaleString()}`);
+  console.log(`🔍 Fetching new issues since: ${new Date(sinceDate).toLocaleString()}`);
   let newIssues = [];
   let page = 1;
 
@@ -195,6 +197,11 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
 
       page++; // Move to the next page
     }
+
+    console.log(
+      "Issues Found :",
+      newIssues.map((issue) => `Title: ${issue.title}, Created At: ${new Date(issue.createdAt).toLocaleString()}`)
+    );
 
     return newIssues;
   } catch (error) {
@@ -294,6 +301,9 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
     Date.now() - alertTime * 60 * 60 * 1000
   ).toISOString();
 
+  console.log(`🕒 Script executed at: ${new Date().toLocaleString()}`);
+  console.log(`🔍 Fetching new prs since: ${new Date(cutoffDate).toLocaleString()}`);
+
   let newPRs = [];
   let page = 1;
   let olderThanCutoff = false;
@@ -341,6 +351,10 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
     }
 
     console.log(`Fetched ${newPRs.length} new PR(s)`);
+    console.log(
+      "New PRs Found :",
+      newPRs.map((pr) => `Title: ${pr.title}, Created At: ${new Date(pr.createdAt).toLocaleString()}`)
+    );
     return newPRs;
   } catch (error) {
     console.error("Error fetching PRs:", error.message);
