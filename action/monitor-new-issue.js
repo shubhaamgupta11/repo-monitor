@@ -18,6 +18,8 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
     new Date().getTime() - alertTime * 60 * 60 * 1000
   ).toISOString();
 
+  console.log(`🕒 Script executed at: ${new Date().toLocaleString()}`);
+  console.log(`🔍 Fetching new issues since: ${new Date(sinceDate).toLocaleString()}`);
   let newIssues = [];
   let page = 1;
 
@@ -59,6 +61,11 @@ const fetchNewIssues = async (gitToken, owner, repo, alertTime) => {
 
       page++; // Move to the next page
     }
+
+    console.log(
+      "Issues Found :",
+      newIssues.map((issue) => `Title: ${issue.title}, Created At: ${new Date(issue.createdAt).toLocaleString()}`)
+    );
 
     return newIssues;
   } catch (error) {

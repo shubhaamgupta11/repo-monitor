@@ -18,6 +18,9 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
     Date.now() - alertTime * 60 * 60 * 1000
   ).toISOString();
 
+  console.log(`🕒 Script executed at: ${new Date().toLocaleString()}`);
+  console.log(`🔍 Fetching new prs since: ${new Date(cutoffDate).toLocaleString()}`);
+
   let newPRs = [];
   let page = 1;
   let olderThanCutoff = false;
@@ -65,6 +68,10 @@ const fetchNewPRs = async (gitToken, owner, repo, alertTime) => {
     }
 
     console.log(`Fetched ${newPRs.length} new PR(s)`);
+    console.log(
+      "New PRs Found :",
+      newPRs.map((pr) => `Title: ${pr.title}, Created At: ${new Date(pr.createdAt).toLocaleString()}`)
+    );
     return newPRs;
   } catch (error) {
     console.error("Error fetching PRs:", error.message);
